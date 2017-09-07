@@ -66,46 +66,35 @@ The character '-' signifies an empty space on the screen.
 */
 
 int wordsTyping(char** sentence, int sentenceSize, int rows, int cols) {
-    int *sz, t, i, p, n, r;
-    int cur;
-    
-    sz = malloc(sentenceSize * sizeof(int));
-    //assert(sz);
-    t = 0;
-    for (i = 0; i < sentenceSize; i ++) {
-        sz[i] = strlen(sentence[i]);
-        t += sz[i];
-    }
-    t += sentenceSize - 1;
-    
-    p = n = r = 0;
-    while (r < rows) {
-        r ++;
-        cur = 0;
-        while (!p && cur + t <= cols) { // batch fitting
-            cur += t + 1;
-            n ++;
-        }
-        while (cur + sz[p] <= cols) {
-            cur += sz[p] + 1;
-            p = (p + 1) % sentenceSize;
-            if (!p) {
-                n ++;
-                while (cur + t <= cols) { // batch fitting
-                    cur += t + 1;
-                    n ++;
-                }
-            }
-        }
-        if (!p) {
-            n = n * (rows / r);
-            r = r * (rows / r);
-        }
-    }
-    free(sz);
-    return n;
+    char *p;
+    int i, l, n;
+    
+    p = malloc((cols + 3) * sizeof(char));
+    //assert(p);
+    
+    p[0] = 0;
+    for (i = 0; i < sentenceSize; i ++) {
+        strcat(p, sentence[i]);
+        strcat(p, " ");
+    }
+    l = strlen(p);
+    
+    n = 0;
+    for (i = 0; i < rows; i ++) {
+        n += cols;
+        if (p[n % l] == ' ') {
+            n ++;
+        } else {
+            while (n > 0 && p[(n - 1) % l] != ' ') {
+                n --;
+            }
+        }
+    }
+    
+    free(p);
+    
+    return n / l;
 }
-
 
 /*
 Difficulty:Medium
