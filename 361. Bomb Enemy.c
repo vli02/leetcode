@@ -18,49 +18,40 @@ return 3. (Placing a bomb at (1,1) kills 3 enemies)
 Credits:Special thanks to @memoryless for adding this problem and creating all test cases.
 */
 
-int count_E(char **grid, int i, int j, int rowsz, int colsz) {
-    int k, n;
-    n = 0;
-    for (k = j - 1; k >= 0 && grid[i][k] != 'W'; k --) {
-        if (grid[i][k] == 'E') {
-            n ++;
-        }
-    }
-    for (k = j + 1; k < colsz && grid[i][k] != 'W'; k ++) {
-        if (grid[i][k] == 'E') {
-            n ++;
-        }
-    }
-    for (k = i - 1; k >= 0 && grid[k][j] != 'W'; k --) {
-        if (grid[k][j] == 'E') {
-            n ++;
-        }
-    }
-    for (k = i + 1; k < rowsz && grid[k][j] != 'W'; k ++) {
-        if (grid[k][j] == 'E') {
-            n ++;
-        }
-    }
-    return n;
-}
 int maxKilledEnemies(char** grid, int gridRowSize, int gridColSize) {
-    int i, j, n, max;
-    
-    max = 0;
-    
-    for (i = 0; i < gridRowSize; i ++) {
-        for (j = 0; j < gridColSize; j ++) {
-            if (grid[i][j] == '0') {
-                n = count_E(grid, i, j, gridRowSize, gridColSize);
-                if (n > max) {
-                    max = n;
-                }
-            }
-        }
-    }
-    return max;
+    int rowhit, *colhit;
+    int i, j, k, m, n;
+    
+    colhit = calloc(gridColSize, sizeof(int));
+    //assert(colhit);
+    
+    n = 0;
+    
+    for (i = 0; i < gridRowSize; i ++) {
+        for (j = 0; j < gridColSize; j ++) {
+            if (!j || grid[i][j - 1] == 'W') {
+                rowhit = 0;
+                for (k = j; k < gridColSize && grid[i][k] != 'W'; k ++) {
+                    rowhit += (grid[i][k] == 'E') ? 1 : 0;
+                }
+            }
+            if (!i || grid[i - 1][j] == 'W') {
+                colhit[j] = 0;
+                for (k = i; k < gridRowSize && grid[k][j] != 'W'; k ++) {
+                    colhit[j] += (grid[k][j] == 'E') ? 1 : 0;
+                }
+            }
+            if (grid[i][j] == '0') {
+                n = rowhit + colhit[j];
+                if (m < n) m = n;
+            }
+        }
+    }
+    
+    free(colhit);
+    
+    return m;
 }
-
 
 /*
 Difficulty:Medium
