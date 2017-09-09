@@ -32,72 +32,64 @@ Credits:Special thanks to @jianchao.li.fighter for adding this problem and creat
 */
 
 void update(int **board, int rowsz, int colsz, int *visited, int x, int y) {
-    int a, b, c, d, e, f, g, h;
-​
-    int t;
-    
-    if (visited[x * colsz + y]) return;
-​
-    visited[x * colsz + y] = 1;
-    
-    a = b = c = d = e = f = g = h = 0;
-    t = 0;
-    
-    if (x > 0) {
-        t +=  board[x - 1][y];
-        a = 1;
-    }
-    if (x > 0 && y < colsz - 1) {
-        t += board[x - 1][y + 1];
-        b = 1;
-    }
-    if (y < colsz - 1) {
-        t += board[x][y + 1];
-        c = 1;
-    }
-    if (x < rowsz - 1 && y < colsz - 1) {
-        t += board[x + 1][y + 1];
-        d = 1;
-    }
-    if (x < rowsz - 1) {
-        t += board[x + 1][y];
-        e = 1;
-    }
-    if (x < rowsz - 1 && y > 0) {
-        t += board[x + 1][y - 1];
-        f = 1;
-    }
-    if (y > 0) {
-        t += board[x][y - 1];
-        g = 1;
-    }
-    if (x > 0 && y > 0) {
-        t += board[x - 1][y - 1];
-        h = 1;
-    }
-    
-    if (a) update(board, rowsz, colsz, visited, x - 1, y);
-    if (b) update(board, rowsz, colsz, visited, x - 1, y + 1);
-    if (c) update(board, rowsz, colsz, visited, x, y + 1);
-    if (d) update(board, rowsz, colsz, visited, x + 1, y + 1);
-    if (e) update(board, rowsz, colsz, visited, x + 1, y);
-    if (f) update(board, rowsz, colsz, visited, x + 1, y - 1);
-    if (g) update(board, rowsz, colsz, visited, x, y - 1);
-    if (h) update(board, rowsz, colsz, visited, x - 1, y - 1);
-    
-    if (board[x][y]) {
-        if (t < 2 || t > 3) board[x][y] = 0;
-    } else {
-        if (t == 3) board[x][y] = 1;
-    }
+    int a, b, c, d, e, f, g, h;
+
+    int t;
+    
+    if (x < 0 || x >= rowsz ||
+        y < 0 || y >= colsz ||
+        visited[x * colsz + y]) return;
+
+    visited[x * colsz + y] = 1;
+    
+    t = 0;
+    
+    if (x > 0) {
+        t +=  board[x - 1][y];
+    }
+    if (x > 0 && y < colsz - 1) {
+        t += board[x - 1][y + 1];
+    }
+    if (y < colsz - 1) {
+        t += board[x][y + 1];
+    }
+    if (x < rowsz - 1 && y < colsz - 1) {
+        t += board[x + 1][y + 1];
+    }
+    if (x < rowsz - 1) {
+        t += board[x + 1][y];
+    }
+    if (x < rowsz - 1 && y > 0) {
+        t += board[x + 1][y - 1];
+    }
+    if (y > 0) {
+        t += board[x][y - 1];
+    }
+    if (x > 0 && y > 0) {
+        t += board[x - 1][y - 1];
+    }
+    
+    update(board, rowsz, colsz, visited, x - 1, y);
+    update(board, rowsz, colsz, visited, x - 1, y + 1);
+    update(board, rowsz, colsz, visited, x, y + 1);
+    update(board, rowsz, colsz, visited, x + 1, y + 1);
+    update(board, rowsz, colsz, visited, x + 1, y);
+    update(board, rowsz, colsz, visited, x + 1, y - 1);
+    update(board, rowsz, colsz, visited, x, y - 1);
+    update(board, rowsz, colsz, visited, x - 1, y - 1);
+    
+    if (board[x][y]) {
+        if (t < 2 || t > 3) board[x][y] = 0;
+    } else {
+        if (t == 3) board[x][y] = 1;
+    }
 }
 void gameOfLife(int** board, int boardRowSize, int boardColSize) {
-    int *visited = calloc(boardRowSize * boardColSize, sizeof(int));
-    //assert(visited);
-    update(board, boardRowSize, boardColSize, visited, 0, 0);
-    free(visited);
+    int *visited = calloc(boardRowSize * boardColSize, sizeof(int));
+    //assert(visited);
+    update(board, boardRowSize, boardColSize, visited, 0, 0);
+    free(visited);
 }
-
 
 /*
 Difficulty:Medium
