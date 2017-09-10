@@ -19,39 +19,38 @@ The vowels does not include the letter "y".
 */
 
 #define IS_VOWEL(C) ((C) == 'a' || (C) == 'A' || \
-                     (C) == 'e' || (C) == 'E' || \
-                     (C) == 'i' || (C) == 'I' || \
-                     (C) == 'o' || (C) == 'O' || \
-                     (C) == 'u' || (C) == 'U')
-​
-char* reverseVowels(char* s) {
-    char *a, *b, c;
-    
-    if (!s || !*s) return s;
-    
-    a = s;
-    b = &s[strlen(s) - 1];
-    
-    while (a < b) {
-        if (IS_VOWEL(*a) && IS_VOWEL(*b)) {
-            // swap
-            c = *a;
-            *a = *b;
-            *b = c;
-            a ++;
-            b --;
-        } else if (IS_VOWEL(*a)) {
-            b --;
-        } else if (IS_VOWEL(*b)) {
-            a ++;
-        } else {
-            a ++;
-            b --;
-        }
-    }
-    return s;
-}
+                     (C) == 'e' || (C) == 'E' || \
+                     (C) == 'i' || (C) == 'I' || \
+                     (C) == 'o' || (C) == 'O' || \
+                     (C) == 'u' || (C) == 'U')
 
+char* reverseVowels(char* s) {
+    char *a, *b;
+    
+    if (!s || !*s) return s;
+    
+    a = s;
+    b = &s[strlen(s) - 1];
+    
+    while (a < b) {
+        if (IS_VOWEL(*a) && IS_VOWEL(*b)) {
+            // swap
+            *a = *a ^ *b;
+            *b = *a ^ *b;
+            *a = *a ^ *b;
+            a ++;
+            b --;
+        } else if (IS_VOWEL(*a)) {
+            b --;
+        } else if (IS_VOWEL(*b)) {
+            a ++;
+        } else {
+            a ++;
+            b --;
+        }
+    }
+    return s;
+}
 
 /*
 Difficulty:Easy
