@@ -50,8 +50,7 @@ bool cut_and_match(int *pat, int patlen, int *dup, int *seglen, int *visited, in
     }
     
     if (visited[pat[d]]) {
-        t = cut_and_match(pat, patlen, dup, seglen, visited, xlen, d + 1, str, slen);
-        if (t) return true;
+        return cut_and_match(pat, patlen, dup, seglen, visited, xlen, d + 1, str, slen);
     } else {
         visited[pat[d]] = 1;
         
