@@ -21,54 +21,95 @@ A solution is:
  * The sizes of the arrays are returned as *columnSizes array.
  * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
  */
+typedef struct res_s {
+    char ***p;
+    int *l;
+    int n;
+} res_t;
+typedef struct e_s {
+    int k;
+    char *key;
+    struct e_s *shadow;
+} e_t;
+#define HSZ 1021
+int new_buff(res_t *res, int sz) {
+    int n;
+    char **buff = malloc(sz * sizeof(char *));  // more than enough
+    //assert(buff);
+    res->p[res->n] = buff;
+    res->l[res->n] = 0;
+    n = res->n;
+    res->n ++;
+    return n;
+}
+void add2res(res_t *res, int k, char *str) {
+    res->p[k][res->l[k]] = str;
+    res->l[k] ++;
+}
+int hash_code(char *key) {
+    int h = 5381;
+    while (*key) {
+        h = h * 33 + *key;
+        key ++;
+    }
+    return h;
+}
+void normalize_key(char *key) {
+    int offset = *key - 'a';
+    while (*key) {
+        *key -= offset;
+        if (*key < 'a') *key += 26;
+        key ++;
+    }
+}
+int lookup(e_t **ht, int code, char *key) {
+    e_t *e = ht[code % HSZ];
+    while (e && strcmp(e->key, key)) {
+        e = e->shadow;
+    }
+    if (e) return e->k;
+    return -1;
+}
+void insert(e_t **ht, int code, char *key, int k) {
+    e_t *e = malloc(sizeof(e_t));
+    //assert(e);
+    e->k = k;
+    e->key = key;
+    e->shadow = ht[code % HSZ];
+    ht[code % HSZ] = e;
+}
 char*** groupStrings(char** strings, int stringsSize, int** columnSizes, int* returnSize) {
-    int i, j, k, d;
-    char *pattern, *s;
-    char **buff, ***p;
-    
-    *returnSize = 0;
-    
-    if (stringsSize <= 0) return NULL;
-    
-    p = malloc(stringsSize * sizeof(char **));
-    // this caused runtime error!!! it must be the free in the caller.
-    // caller should ask for a free function and let the one who malloc'ed the memory free the memory.
-    //buff = malloc((stringsSize + 1) * sizeof(char *));
-    *columnSizes = malloc(stringsSize * sizeof(int));
-    //assert(p && buff && *columnSizes);
-    
-    pattern = NULL;
-    for (i = 0; i < stringsSize; i ++) {
-        s = strings[i];
-        if (!s) continue;
-        pattern = s;
-        (*columnSizes)[*returnSize] = 1;
-        // use one malloc in the beginning is a much better way for memory management!!!
-        buff = malloc(stringsSize * sizeof(char *));
-        //assert(buff);
-        p[*returnSize] = buff;
-        (*returnSize) ++;
-        buff[0] = pattern;
-        buff ++;
-        for (j = i + 1; j < stringsSize; j ++) {
-            s = strings[j];
-            if (!s) continue;
-            d = s[0] - pattern[0];
-            if (d < 0) d = d + 26;
-            k = 1;
-            while (s[k] && pattern[k] && (s[k] - 'a') == ((pattern[k] - 'a' + d) % 26)) {
-                k ++;
-            }
-            if (!s[k] && !pattern[k]) {
-                (*columnSizes)[(*returnSize) - 1] ++;
-                buff[0] = s;
-                buff ++;
-                strings[j] = NULL;
-            }
-        }
-    }
-​
-    return p;
+    int i, k, code;
+    char *str, *key;
+    res_t res;
+    e_t *e, *ebuff[HSZ * 2] = { 0 };
+    e_t **ht = &ebuff[HSZ];
+    
+    res.p = malloc(stringsSize * sizeof(char **)); // enough
+    res.l = malloc(stringsSize * sizeof(int));
+    //assert(res.p && res.l);
+    res.n = 0;
+    
+    for (i = 0; i < stringsSize; i ++) {
+        str = strings[i];
+        key = strdup(str);
+        normalize_key(key);
+        code = hash_code(key);
+        k = lookup(ht, code, key);
+        if (k == -1) {
+            k = new_buff(&res, stringsSize);
+            insert(ht, code, key, k);
+        } else {
+            free(key);
+        }
+        add2res(&res, k, str);
+    }
+    
+    // TODO: clean up hash table
+    
+    *returnSize = res.n;
+    *columnSizes = res.l;
+    return res.p;
 }
 
 
