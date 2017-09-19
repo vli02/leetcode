@@ -41,7 +41,7 @@ bool patmatch(int *pat, int patlen, int *seglen, char *str, int slen) {
     if (i == 0 && j == slen) return true;
     return false;
 }
-bool cut_and_match(int *pat, int patlen, int *dup, int *seglen, int *visited, int xlen, int d, char *str, int slen) {
+bool cut_and_match(int *pat, int patlen, int *dup, int *seglen, int xlen, int d, char *str, int slen) {
     int i, t;
     
     if (d == patlen) {  // done cutting, try match
@@ -49,18 +49,15 @@ bool cut_and_match(int *pat, int patlen, int *dup, int *seglen, int *visited, in
         return patmatch(pat, patlen, seglen, str, slen);
     }
     
-    if (visited[pat[d]]) {
-        return cut_and_match(pat, patlen, dup, seglen, visited, xlen, d + 1, str, slen);
-    } else {
-        visited[pat[d]] = 1;
-        
+    if (seglen[pat[d]]) {
+        return cut_and_match(pat, patlen, dup, seglen, xlen, d + 1, str, slen);
+    } else {        
         for (i = 1; i * dup[pat[d]] <= xlen; i ++) {
             seglen[pat[d]] = i;
-            t = cut_and_match(pat, patlen, dup, seglen, visited, xlen - i * dup[pat[d]], d + 1, str, slen);
+            t = cut_and_match(pat, patlen, dup, seglen, xlen - i * dup[pat[d]], d + 1, str, slen);
             if (t) return true;
         }
-        
-        visited[pat[d]] = 0;
+        seglen[pat[d]] = 0;
     }
     
     return false;
@@ -71,7 +68,6 @@ bool wordPatternMatch(char* pattern, char* str) {
     int patlen = 0, slen;
     int i, k;
     int seglen[26] = { 0 };
-    int visited[26] = { 0 };
     int dup[26];
     
     if ((!pattern || !*pattern) && (!str || !*str)) return true;
@@ -91,7 +87,7 @@ bool wordPatternMatch(char* pattern, char* str) {
     
     slen = strlen(str);
     
-    return cut_and_match(pat, patlen, dup, seglen, visited, slen, 0, str, slen);
+    return cut_and_match(pat, patlen, dup, seglen, slen, 0, str, slen);
 }
 
 /*
