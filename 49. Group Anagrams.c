@@ -20,92 +20,109 @@ Note: All inputs will be in lower-case.
  * The sizes of the arrays are returned as *columnSizes array.
  * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
  */
-char*** groupAnagrams(char** strs, int strsSize, int** columnSizes, int* returnSize) {
-    /* make a bit map and compare the bits */
-    char ***p, **buff;
-    int *c;
-    int *b, **k, *kbuff, *lens;
-    int i, j, n, x, sz, t;
-    char *s;
-    
-    *returnSize = 0;
-    *columnSizes = NULL;
-    if (strsSize == 0) return NULL;
-    
-    p = malloc(strsSize * sizeof(char **));
-    c = malloc(strsSize * sizeof(int));
-    //assert(p && c);
-    
-    b = calloc(strsSize, sizeof(int));
-    k = calloc(strsSize, sizeof(int *));
-    lens = calloc(strsSize, sizeof(int));
-    kbuff = calloc(strsSize * 26, sizeof(int));
-    //assert(b && k && lens && kuff);
-    
-    for (i = 0; i < strsSize; i ++) {
-        k[i] = &kbuff[i * 26];
-    }
-    
-    n = 0;
-    for (i = 0; i < strsSize; i ++) {
-        s = strs[i];
-        if (!s || b[i] == -1) continue;
-        
-        if (b[i] == 0) {
-            while (*s) {
-                k[i][*s - 'a'] ++;
-                s ++;
-                lens[i] ++;
-            }
-        }
-        b[i] = 1;
-        
-        sz = 10;
-        buff = malloc(sz * sizeof(char *));
-        //assert(buff);
-        x = 0;
-        buff[x ++] = strs[i];
-        b[i] = -1;
-        
-        for (j = i + 1; j < strsSize; j ++) {
-            s = strs[j];
-            if (!s || b[j] == -1) continue;
-            
-            if (b[j] == 0) {
-                while (*s) {
-                    k[j][*s - 'a'] ++;
-                    s ++;
-                    lens[j] ++;
-                }
-            }
-            b[j] = 1;
-            
-            if (lens[j] != lens[i]) continue;
-            
-            for (t = 0; t < 26; t ++) {
-                if (k[j][t] != k[i][t]) break;
-            }
-            
-            if (t == 26) {
-                if (sz == x) {
-                    sz *= 2;
-                    buff = realloc(buff, sz * sizeof(char *));
-                    //assert(buff);
-                }
-                buff[x ++] = strs[j];
-                b[j] = -1;
-            }
-        }
-        p[n] = buff;
-        c[n] = x;
-        n ++;
-    }
-    free(b); free(k[0]); free(k);
-    *columnSizes = c;
-    *returnSize = n;
-    return p;
-}
+typedef struct res_s {
+    char ***p;
+    int *csz;
+    int *cl;
+    int sz;
+    int n;
+} res_t;
+typedef struct e_s {
+    char *key;
+    int k;
+    struct e_s *shadow;
+} e_t;
+#define HSZ 1021
 
+int new_buff(res_t *res) {
+    int k, buffsz = 10;
+    char **buff = malloc(buffsz * sizeof(char *));
+    //assert(buff);
+    if (res->sz == 0) {
+        res->sz = 100;
+        res->p = malloc(res->sz * sizeof(char **));
+        res->csz = malloc(res->sz * sizeof(int));
+        res->cl = malloc(res->sz * sizeof(int));
+        //assert(res->p && res->csz && res->cl);
+    } else if (res->sz == res->n) {
+        res->sz *= 2;
+        res->p = realloc(res->p, res->sz * sizeof(char **));
+        res->csz = realloc(res->csz, res->sz * sizeof(int));
+        res->cl = realloc(res->cl, res->sz * sizeof(int));
+        //assert(res->p && res->csz && res->cl);
+    }
+    k = res->n ++;
+    res->p[k] = buff;
+    res->csz[k] = buffsz;
+    res->cl[k] = 0;
+    
+    return k;
+}
+void add2res(res_t *res, int k, char *str) {
+    if (res->csz[k] == res->cl[k]) {
+        res->csz[k] *= 2;
+        res->p[k] = realloc(res->p[k], res->csz[k] * sizeof(char **));
+        //assert(res->p[k]);
+    }
+    res->p[k][res->cl[k] ++] = str;
+}
+int cmp(const void *a, const void *b) {
+    return *(char *)a - *(char *)b;
+}
+int hash_code(char *key) {
+    int h = 5381;
+    while (*key) {
+        h = h * 33 + *key;
+        key ++;
+    }
+    return h;
+}
+int lookup(e_t **ht, int code, char *key) {
+    e_t *e = ht[code % HSZ];
+    while (e && strcmp(e->key, key)) {
+        e = e->shadow;
+    }
+    if (e) return e->k;
+    return -1;
+}
+void insert(e_t **ht, int code, char *key, int k) {
+    e_t *e = malloc(sizeof(e_t));
+    //assert(e);
+    e->key = key;
+    e->k = k;
+    e->shadow = ht[code % HSZ];
+    ht[code % HSZ] = e;
+}
+char*** groupAnagrams(char** strs, int strsSize, int** columnSizes, int* returnSize) {
+    res_t res = { 0 };
+    e_t *ebuff[HSZ * 2] = { 0 };
+    e_t **ht = &ebuff[HSZ];
+
+    int i, k, code;
+    char *str, *key;
+    
+    for (i = 0; i < strsSize; i ++) {
+        str = strs[i];
+        key = strdup(str);
+        qsort(key, strlen(key), sizeof(char), cmp);
+        code = hash_code(key);
+        k = lookup(ht, code, key);
+        if (k == -1) {
+            k = new_buff(&res);
+            insert(ht, code, key, k);
+        } else {
+            free(key);
+        }
+        add2res(&res, k, str);
+    }
+    
+    // TODO: clean hash table
+    
+    free(res.csz);
+    *columnSizes = res.cl;
+    *returnSize = res.n;
+    return res.p;
+}
 
 /*
 Difficulty:Medium
