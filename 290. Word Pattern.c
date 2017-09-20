@@ -22,58 +22,43 @@ Credits:Special thanks to @minglotus6 for adding this problem and creating all t
 */
 
 bool wordPattern(char* pattern, char* str) {
-    char *bucket[26] = { 0 };
-    int *pat, np;
-    char *next;
-    int i, j, k, l;
-    
-    if (!pattern || !*pattern || !str || !*str) return false;
-    //if (!strcmp(pattern, str)) return true;
-    
-    l = strlen(pattern);
-    pat = calloc(l, sizeof(int));
-    
-    i = j = 0;
-    
-    next = str;
-    while (*next) {
-        while (*next && *next != ' ') {
-            next++;
-        }
-        if (*next == ' ') {
-            *next = 0;
-            next ++;
-        }
-        np = 0;
-        if (*pattern) {
-            if (!pat[i]) {
-                pat[i] = *pattern - 'a' + 1;
-                np = 1;
-            }
-            pattern ++;
-            i ++;
-        } else {
-            j = j % i;
-        }
-        if (!bucket[pat[j] - 1]) {
-            for (k = 0; np && k < i - 1; k ++) {
-                if (!strcmp(bucket[pat[k] - 1], str)) {
-                    free(pat);
-                    return false;
-                }
-            }
-            bucket[pat[j] - 1] = str;
-        } else if (strcmp(bucket[pat[j] - 1], str)) {
-            free(pat);
-            return false;
-        }
-        j ++;
-        str = next;
-    }
-    free(pat);
-    return (j % l == 0) ? true : false;
+    char *bucket[26] = { 0 };
+    int   len   [26] = { 0 };
+    char c, *p, *s;
+    char t, *pat;
+    int l;
+    
+    pat = pattern;
+    while (*str && *pattern) {
+        s = str;
+        l = 0;
+        while (*str && *str != ' ') {
+            str ++;
+        }
+        l = str - s;
+        if (*str == ' ') {
+            *str = 0;  // strcmp is much faster than strncmp, so cut the strings.
+            str ++;    // skip single space
+        }
+        
+        c = *(pattern ++) - 'a';
+        p = bucket[c];
+        if (p) {
+            if (strcmp(p, s)) return false;
+        } else {
+            bucket[c] = s;
+            len[c] = l;
+            // cannot be same with other pattern
+            p = pat;
+            while ((t = (*p ++) - 'a') != c) {
+                if (len[t] == len[c] &&
+                    !strcmp(bucket[t], bucket[c])) return false;
+            }
+        }
+    }
+    
+    return (!*pattern && !*str) ? true : false;
 }
-
 
 /*
 Difficulty:Easy
