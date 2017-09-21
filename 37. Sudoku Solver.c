@@ -18,14 +18,15 @@ A sudoku puzzle...
 */
 
 #define IDX(I, J) ((I) / 3 * (boardColSize + 2) / 3 + (J) / 3)
-​
-int find_valid_bit(int b, int k) {
+
+int find_next_bit(int b, int k) {
+    k ++;
     while (k < 9 && (b & (1 << k))) {
         k ++;
     }
     return k;
 }
-​
+
 int dfs(char **board, int boardRowSize, int boardColSize, int *bits_on_row, int *bits_on_col, int *bits_on_square) {
     int i, j, b, t, k;
     char c;
@@ -38,8 +39,8 @@ int dfs(char **board, int boardRowSize, int boardColSize, int *bits_on_row, int 
             b = bits_on_row[i] |
                 bits_on_col[j] |
                 bits_on_square[IDX(i, j)];
-            k = 0;
-            while ((k = find_valid_bit(b, k)) < 9) {
+            k = -1;
+            while ((k = find_next_bit(b, k)) < 9) {
                 t = 1 << k;
                 
                 board[i][j] = '1' + k;
@@ -53,7 +54,6 @@ int dfs(char **board, int boardRowSize, int boardColSize, int *bits_on_row, int 
                 bits_on_row[i] &= ~t;
                 bits_on_col[j] &= ~t;
                 bits_on_square[IDX(i, j)] &= ~t;
-                k ++;
             }
             
             return 0;
