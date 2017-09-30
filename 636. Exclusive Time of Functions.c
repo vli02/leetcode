@@ -40,80 +40,79 @@ Functions could be called recursively, and will always end.
  * Note: The returned array must be malloced, assume caller calls free().
  */
 typedef struct {
-    int *p;
-    int sp;
-    int sz;
+    int *p;
+    int sp;
+    int sz;
 } s_t;
-​
+
 void push(s_t *stack, int tx) {
-    if (stack->sz == stack->sp) {
-        stack->sz *= 2;
-        stack->p = realloc(stack->p, stack->sz * sizeof(int));
-        //assert(stack->p);
-    }
-    stack->p[stack->sp ++] = tx;
+    if (stack->sz == stack->sp) {
+        stack->sz *= 2;
+        stack->p = realloc(stack->p, stack->sz * sizeof(int));
+        //assert(stack->p);
+    }
+    stack->p[stack->sp ++] = tx;
 }
-    
+    
 int pop(s_t *stack) {
-    return stack->p[-- stack->sp];
+    return stack->p[-- stack->sp];
 }
-    
+    
 void update(s_t *stack, int tx) {
-    int i;
-    for (i = 0; i < stack->sp; i ++) {
-        stack->p[i] += tx;
-    }
-}
-​
-void parse(char *log, int *fid, int *d, int *t) {
-    char c;
-    *fid = 0;
-    while ((c = *(log ++)) != ':') {
-        *fid = (*fid) * 10 + c - '0';
-    }
-    if (!strncmp(log, "end", 3)) {
-        log += 4;
-        *d = 0;
-    } else {
-        log += 6;
-        *d = 1;
-    }
-    *t = 0;
-    while ((c = *(log ++)) != 0) {
-        *t = (*t) * 10 + c - '0';
-    }
-}
-​
-int* exclusiveTime(int n, char** logs, int logsSize, int* returnSize) {
-    s_t stack;
-    int *res, i, fid, d, t;
-    
-    stack.sz = 100;
-    stack.sp = 0;
-    stack.p = malloc(stack.sz * sizeof(int));
-    //assert(stack.p);
-    
-    res = calloc(n, sizeof(int));
-    //assert(t);
-    
-    *returnSize = n;
-    
-    for (i = 0; i < logsSize; i ++) {
-        parse(logs[i], &fid, &d, &t);
-        if (d) {
-            push(&stack, t);
-        } else {
-            t = t - pop(&stack) + 1;
-            update(&stack, t);
-            res[fid] += t;
-        }
-    }
-    
-    free(stack.p);
-    
-    return res;
+    int i;
+    for (i = 0; i < stack->sp; i ++) {
+        stack->p[i] += tx;
+    }
 }
 
+void parse(char *log, int *fid, int *d, int *t) {
+    char c;
+    *fid = 0;
+    while ((c = *(log ++)) != ':') {
+        *fid = (*fid) * 10 + c - '0';
+    }
+    if (*log == 'e') {  // end
+        log += 4;
+        *d = 0;
+    } else {
+        log += 6;
+        *d = 1;
+    }
+    *t = 0;
+    while ((c = *(log ++)) != 0) {
+        *t = (*t) * 10 + c - '0';
+    }
+}
+
+int* exclusiveTime(int n, char** logs, int logsSize, int* returnSize) {
+    s_t stack;
+    int *res, i, fid, d, t;
+    
+    stack.sz = 100;
+    stack.sp = 0;
+    stack.p = malloc(stack.sz * sizeof(int));
+    //assert(stack.p);
+    
+    res = calloc(n, sizeof(int));
+    //assert(t);
+    
+    *returnSize = n;
+    
+    for (i = 0; i < logsSize; i ++) {
+        parse(logs[i], &fid, &d, &t);
+        if (d) {
+            push(&stack, t);
+        } else {
+            t = t - pop(&stack) + 1;
+            update(&stack, t);
+            res[fid] += t;
+        }
+    }
+    
+    free(stack.p);
+    
+    return res;
+}
 
 /*
 Difficulty:Medium
