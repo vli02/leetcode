@@ -37,97 +37,122 @@ If the current candidate does not exist in all words' prefix, you could stop bac
  * Return an array of size *returnSize.
  * Note: The returned array must be malloced, assume caller calls free().
  */
-#ifndef DUMP
-#define DUMP() do { } while (0)
-#endif
-#define IDX(I, J) ((I) * colsz + (J))
-const int offset[][2] = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
-int cmp(const void *a, const void *b) {
-    const char *s1 = a, *s2 = b;
-    while (*s1 && *s2 && *s1 == *s2) {
-        s1 ++; s2 ++;
-    }
-    return *s1 - *s2;
-}
-int search(int *visited, char **board, int i, int j, int rowsz, int colsz, char *str, int d, int *e) {
-    int r, c, k;
-    
-    if (*e < d) *e = d;
-    
-    if (board[i][j] != str[d]) return 0;
-    
-    if (!str[d + 1]) return 1;
-    
-    visited[IDX(i, j)] = 1;
-    
-    for (k = 0; k < 4; k ++) {
-        r = i + offset[k][0];
-        c = j + offset[k][1];
-        if (r >= 0 && r < rowsz &&
-            c >= 0 && c < colsz &&
-            visited[IDX(r, c)] == 0) {
-            if (search(visited, board, r, c, rowsz, colsz, str, d + 1, e)) return 1;
-        }
-    }
-    
-    visited[IDX(i, j)] = 0;
-    
-    return 0;
-}
-int skip(char **x, int *l, int xp, char **p, int n, char *str) {
-    int i;
-    for (i = 0; i < xp; i ++) {
-        if (!strncmp(x[i], str, l[i] + 1)) return 1;
-    }
-    for (i = 0; i < n; i ++) {
-        if (!strcmp(p[i], str)) return 1;
-    }
-    return 0;
-}
-char** findWords(char** board, int boardRowSize, int boardColSize, char** words, int wordsSize, int* returnSize) {
-    int i, j, k, f, *visited, *l, e, xp = 0;
-    char *str, **p, **x;
-    
-    *returnSize = 0;
-    
-    visited = malloc(boardRowSize * boardColSize * sizeof(int));
-    p = malloc(wordsSize * sizeof(char *));
-    x = malloc(wordsSize * sizeof(char *));
-    l = malloc(wordsSize * sizeof(int));
-    //assert(visited && p && x && l);
-    
-    //qsort(words, wordsSize, sizeof(char *), cmp);
-    //DUMP();
-    
-    for (k = 0; k < wordsSize; k ++) {
-        str = words[k];
-        if (skip(x, l, xp, p, *returnSize, str)) continue;
-        f = 0; e = 0;
-        for (i = 0; !f && i < boardRowSize; i ++) {
-            for (j = 0; !f && j < boardColSize; j ++) {
-                memset(visited, 0, boardRowSize * boardColSize * sizeof(int));
-                f = search(visited, board, i, j, boardRowSize, boardColSize, str, 0, &e);
-                if (f) {
-                    //printf("%2d: %s\n", *returnSize, str);
-                    p[*returnSize] = str;
-                    (*returnSize) ++;
-                }
-            }
-        }
-        if (!f) {
-            //printf("%s, %d\n", str, e);
-            x[xp   ] = str;
-            l[xp ++] = e;
-        }
-    }
-    
-    free(visited);
-    free(x);
-    free(l);
-    
-    return p;
+typedef struct node_s {
+    struct node_s *child[26];
+    char *word;
+} node_t;
+
+typedef struct {
+    char **p;
+    int n;
+    int sz;
+} res_t;
+
+void add2res(res_t *res, char *word) {
+    if (res->sz == 0) {
+        res->sz = 10;
+    } else if (res->sz == res->n) {
+        res->sz *= 2;
+    }
+    res->p = realloc(res->p, res->sz * sizeof(char *));
+    //assert(res->p);
+    res->p[res->n ++] = word;
 }
 
+void add2trie(node_t *node, char *word) {
+    node_t *t;
+    char *p = word;
+    int k;
+    while (*p) {
+        k = *p - 'a';
+        t = node->child[k];
+        if (!t) {
+            t = calloc(1, sizeof(node_t));
+            //assert(t);
+            node->child[k] = t;
+        }
+        node = t;
+        p ++;
+    }
+    node->word = word;
+}
+
+void free_trie(node_t *node) {
+    int i;
+    node_t *t;
+    for (i = 0; i < 26; i ++) {
+        t = node->child[i];
+        if (t) {
+            free_trie(t);
+        }
+    }
+    free(node);
+}
+
+void dfs(char **board, int rowsz, int colsz, int x, int y, node_t *node, res_t *res) {
+    char c;
+    node_t *t;
+    int i, j, k;
+    const int offset[4][2] = { { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } };
+    
+    c = board[x][y];
+    
+    // already visited
+    if (c == '.') return;
+    
+    t = node->child[c - 'a'];
+
+    // not a match
+    if (!t) return;
+    
+    // found a match
+    node = t;
+    
+    if (node->word) {
+        add2res(res, node->word);
+        node->word = NULL;          // done with this word
+    }
+    
+    board[x][y] = '.';
+    
+    for (k = 0; k < 4; k ++) {
+        i = x + offset[k][0];
+        j = y + offset[k][1];
+        
+        if (i >= 0 && i < rowsz && j >= 0 && j < colsz) {
+            dfs(board, rowsz, colsz, i, j, node, res);
+        }
+    }
+    
+    board[x][y] = c;
+}
+
+char** findWords(char** board, int boardRowSize, int boardColSize, char** words, int wordsSize, int* returnSize) {
+    res_t res = { 0 };
+    node_t *root;
+    int i, j;
+    
+    root = calloc(1, sizeof(node_t));
+    //assert(root);
+    
+    // build trie
+    for (i = 0; i < wordsSize; i ++) {
+        add2trie(root, words[i]);
+    }
+    
+    // search
+    for (i = 0; i < boardRowSize; i ++) {
+        for (j = 0; j < boardColSize; j ++) {
+            dfs(board, boardRowSize, boardColSize, i, j, root, &res);
+        }
+    }
+    
+    // free trie
+    free_trie(root);
+    
+    *returnSize = res.n;
+    return res.p;
+}
 
 /*
 Difficulty:Hard
