@@ -21,7 +21,7 @@ Your algorithm should use only constant space. You may not modify the values in 
  * };
  */
 struct ListNode* swapPairs(struct ListNode* head) {
-    struct ListNode *a, *b = NULL, *c;
+    struct ListNode *a, *b, *c;
     
     a = head;
     if (a) b = a->next;
