@@ -28,34 +28,46 @@ Note:
 */
 
 bool splitArray(int* nums, int numsSize) {
-    int i, j, k, n;
-    int s1, s2, s3, s4;
-    s1 = 0;
-    for (i = 1; i < numsSize - 3; i ++) {
-        s1 += nums[i - 1];
-        s2 = 0;
-        for (j = i + 2; j < numsSize - 2; j ++) {
-            s2 += nums[j - 1];
-            if (s1 == s2) {
-                s3 = 0;
-                for (k = j + 2; k < numsSize - 1; k ++) {
-                    s3 += nums[k - 1];
-                    if (s2 == s3) {
-                        s4 = 0;
-                        for (n = k + 1; n < numsSize; n ++) {
-                            s4 += nums[n];
-                        }
-                        if (s3 == s4) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return false;
+#if 0
+    // j is in range [3, numsSize - 4]
+    // i is in range [1, j - 2]
+    // k is in range [j + 2, numsSize - 2]
+    // try each of j
+    //      try each of i
+    //          save each of possible split
+    //      try each of k
+    //          if a pssible split can be found in previous saved buckets
+    //              return true
+    // return false
+#else
+    int i, j, k, n;
+    int s1, s2, s3, s4;
+    s1 = 0;
+    for (i = 1; i < numsSize - 3; i ++) {
+        s1 += nums[i - 1];
+        s2 = 0;
+        for (j = i + 2; j < numsSize - 2; j ++) {
+            s2 += nums[j - 1];
+            if (s1 == s2) {
+                s3 = 0;
+                for (k = j + 2; k < numsSize - 1; k ++) {
+                    s3 += nums[k - 1];
+                    if (s2 == s3) {
+                        s4 = 0;
+                        for (n = k + 1; n < numsSize; n ++) {
+                            s4 += nums[n];
+                        }
+                        if (s3 == s4) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+#endif
+    return false;
 }
-
 
 /*
 Difficulty:Medium
