@@ -16,27 +16,24 @@ Your algorithm should use only constant space. You may not modify the values in 
 /**
  * Definition for singly-linked list.
  * struct ListNode {
- *     int val;
- *     struct ListNode *next;
+ *     int val;
+ *     struct ListNode *next;
  * };
  */
 struct ListNode* swapPairs(struct ListNode* head) {
-    struct ListNode *a, *b, *c;
-    
-    a = head;
-    if (a) b = a->next;
-    if (b) c = b->next;
-    
-    if (b) {
-        b->next = a;
-        a->next = swapPairs(c);
-        
-        return b;
-    }
-    
-    return a;
+    struct ListNode *a, *b, *c;
+    
+    a = head;
+    if (a && a->next) {
+        b = a->next;
+        c = b->next;
+        b->next = a;
+        a->next = swapPairs(c);
+        return b;
+    }
+    
+    return a;
 }
-
 
 /*
 Difficulty:Medium
