@@ -26,38 +26,37 @@ The number of given pairs will be in the range [1, 1000].
 */
 
 int cmp(const void *a, const void *b) {
-    int x = ((int **)a)[0][0], y = ((int **)b)[0][0];
-    //printf("cmp: %d:%d\n", x, y);
-    
-    if (x < y) return -1;
-    else if (x > y) return 1;
-    return 0;
+    int x = (*(int **)a)[0], y = (*(int **)b)[0];
+    //printf("cmp: %d:%d\n", x, y);
+    
+    if (x < y) return -1;
+    else if (x > y) return 1;
+    return 0;
 }
 int findLongestChain(int** pairs, int pairsRowSize, int pairsColSize) {
-    int i, j, max, *dp;
-    
-    dp = malloc(pairsRowSize * sizeof(int));
-    //assert(dp);
-    
-    qsort(pairs, pairsRowSize, sizeof(int *), cmp);
-    
-    max = 1;
-    for (i = 0; i < pairsRowSize; i ++) {
-        dp[i] = 1;
-        for (j = 0; j < i; j ++) {
-            if (pairs[i][0] > pairs[j][1] &&
-                dp[i] < dp[j] + 1) {
-                dp[i] = dp[j] + 1;
-                if (max < dp[i]) max = dp[i];
-            }
-        }
-    }
-    
-    free(dp);
-    
-    return max;
+    int i, j, max, *dp;
+    
+    dp = malloc(pairsRowSize * sizeof(int));
+    //assert(dp);
+    
+    qsort(pairs, pairsRowSize, sizeof(int *), cmp);
+    
+    max = 1;
+    for (i = 0; i < pairsRowSize; i ++) {
+        dp[i] = 1;
+        for (j = 0; j < i; j ++) {
+            if (pairs[i][0] > pairs[j][1] &&
+                dp[i] < dp[j] + 1) {
+                dp[i] = dp[j] + 1;
+                if (max < dp[i]) max = dp[i];
+            }
+        }
+    }
+    
+    free(dp);
+    
+    return max;
 }
-
 
 /*
 Difficulty:Medium
