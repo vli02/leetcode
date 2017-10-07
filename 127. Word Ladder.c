@@ -38,68 +38,65 @@ UPDATE (2017/1/20):
 The wordList parameter had been changed to a list of strings (instead of a set of strings). Please reload the code definition to get the latest changes.
 */
 
+typedef struct {
+    char **q;
+    int n;
+} q_t;
 int one_diff(char *a, char *b) {
-    int diff = 0;
-    while (*a && diff <= 1) {
-        diff += (*a != *b) ? 1 : 0;
-        a ++; b ++;
-    }
-    return diff == 1 ? 1 : 0;
+    int diff = 0;
+    while (*a && diff <= 1) {
+        diff += (*a != *b) ? 1 : 0;
+        a ++; b ++;
+    }
+    return diff == 1 ? 1 : 0;
 }
-int bfs(char **q1, char **q2, char *end, char **dict, int sz, int *v, char **buff) {
-    int i, j, d;
-    int q1n, q2n;
-    char *a, *b, **tmp;
-    
-    d = 1;
-    q1n = 1;
-    q2n = 0;
-    do {
-        for (i = 0; i < q1n; i ++) {
-            a = q1[i];
-            for (j = 0; j < sz; j ++) {
-                if (v[j]) continue;
-                b = dict[j];
-                if (one_diff(a, b)) {
-                    if (!strcmp(b, end)) {  // done!
-                        return d;
-                    }
-                    v[j] = 1;
-                    q2[q2n ++] = b;
-                }
-            }
-        }
-        tmp = q1;  // switch queues
-        q1 = q2;
-        q2 = tmp;
-        q1n = q2n;
-        q2n = 0;
-        d ++;
-    } while (q1n);
-    
-    return -1;
+int bfs(q_t *q1, q_t *q2, char *end, char **dict, int sz, int *v) {
+    int i, d;
+    char *a, *b;
+    q_t *tmp;
+    
+    d = 1;
+    while (q1->n) {
+        while (q1->n) {
+            a = q1->q[-- q1->n];
+            for (i = 0; i < sz; i ++) {
+                if (v[i]) continue;
+                b = dict[i];
+                if (one_diff(a, b)) {
+                    if (!strcmp(b, end)) {  // done!
+                        return d;
+                    }
+                    v[i] = 1;
+                    q2->q[q2->n ++] = b;
+                }
+            }
+        }
+        tmp = q1;  // switch queues
+        q1 = q2;
+        q2 = tmp;
+        d ++;
+    }
+    
+    return -1;
 }
 int ladderLength(char* beginWord, char* endWord, char** wordList, int wordListSize) {
-    int *visited, i, n = 0;
-    char **buff, **q1, **q2;
-​
-    visited = calloc(wordListSize, sizeof(int));
-    buff = malloc(wordListSize * sizeof(char *));
-    q1 = malloc(wordListSize * 2 * sizeof(char *));
-    //assert(visited && buff && q1);
-    q2 = &q1[wordListSize];
-    
-    q1[0] = beginWord;
-    
-    n = bfs(q1, q2, endWord, wordList, wordListSize, visited, buff);
-    
-    free(visited);
-    free(buff);
-    free(q1);
-    
-    return n + 1;
+    int *visited, i, n = 0;
+    q_t q1 = { 0 }, q2 = { 0 };
+    
+    visited = calloc(wordListSize, sizeof(int));
+    q1.q = malloc(wordListSize * 2 * sizeof(char *));
+    //assert(visited && q1);
+    q2.q = &q1.q[wordListSize];
+    
+    q1.q[q1.n ++] = beginWord;  // initialize q1
+    
+    n = bfs(&q1, &q2, endWord, wordList, wordListSize, visited);
+    
+    free(visited);
+    free(q1.q);
+    
+    return n + 1;
 }
-
 
 /*
 Difficulty:Medium
