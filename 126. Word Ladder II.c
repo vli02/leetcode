@@ -48,149 +48,158 @@ The wordList parameter had been changed to a list of strings (instead of a set o
  * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
  */
 typedef struct {
-    int idx;
-    char *s;
-    int *p;
-    int psz;
-    int pn;
+    int idx;
+    char *s;
+    int *p;
+    int psz;
+    int pn;
 } node_t;
+typedef struct {
+    node_t **q;
+    int n;
+} q_t;
+typedef struct {
+    char ***p;
+    int psz;
+    int pn;
+    int d;
+} res_t;
+void add2res(res_t *res, char **buff, int l) {
+    int sz = l * sizeof(char *);
+    char **p = malloc(sz);
+    //assert(p);
+    memcpy(p, buff, sz);
+    
+    if (res->psz == res->pn) {
+        res->psz = !res->psz ? 10 : res->psz * 2;
+        res->p = realloc(res->p, res->psz * sizeof(char **));
+        //assert(res->p);
+    }
+    res->p[res->pn ++] = p;
+}
 int one_diff(char *a, char *b) {
-    int diff = 0;
-    while (*a && diff <= 1) {
-        diff += (*a != *b) ? 1 : 0;
-        a ++; b ++;
-    }
-    return diff == 1 ? 1 : 0;
+    int diff = 0;
+    while (*a && diff <= 1) {
+        diff += (*a != *b) ? 1 : 0;
+        a ++; b ++;
+    }
+    return diff == 1 ? 1 : 0;
 }
-void bt(node_t *nodes, node_t *n, char **buff, char ****p, int *psz, int *pn, int l, int d) {
-    int i;
-    
-    if (n->idx == -1) {  // done
-        buff[d] = n->s;
-        if (*psz == *pn) {
-            *psz = !*psz ? 10 : *psz * 2;
-            *p = realloc(*p, (*psz) * sizeof(char **));
-            //assert(*p);
-        }
-        (*p)[*pn] = malloc(l * sizeof(char *));
-        //assert((*p)[*pn]);
-        memcpy((*p)[*pn], buff, l * sizeof(char *));
-        (*pn) ++;
-        return;
-    }
-    buff[d] = n->s;
-    for (i = 0; i < n->pn; i ++) {
-        bt(nodes, &nodes[n->p[i]], buff, p, psz, pn, l, d - 1);
-    }
+void add2prev(node_t *b, int idx) {
+    if (b->psz == b->pn) {
+        b->psz = !b->psz ? 5 : b->psz * 2;
+        b->p = realloc(b->p, b->psz * sizeof(int));
+        //assert(b->p);
+    }
+    b->p[b->pn ++] = idx;
 }
-void bfs(node_t **q1, node_t **q2, node_t *nodes, int sz, char *end, int *visited, int *len, char ****p, int *psz, int *pn) {
-    node_t *done, *a, *b, **q3;
-    int q1n = 1, q2n = 0;
-    int d = 1, i, j;
-    
-    char **buff;
-    
-    done = NULL;
-    do {
-        for (i = 0; i < q1n; i ++) {
-            a = q1[i];
-            for (j = 0; j < sz; j ++) {
-                if (visited[j] > 1) continue;
-                b = &nodes[j];
-                if (one_diff(a->s, b->s)) {
-                    if (!done && !strcmp(b->s, end)) done = b;
-                    if (!visited[j]) {
-                        q2[q2n ++] = b;
-                        visited[j] = 1;  // 1 means it is just added into q2
-                    }
-                    if (b->psz == b->pn) {
-                        b->psz = !b->psz ? 5 : b->psz * 2;
-                        b->p = realloc(b->p, b->psz * sizeof(int));
-                        //assert(b->p);
-                    }
-                    b->p[b->pn ++] = a->idx;  // add as a preceeding node
-                }
-            }
-        }
-        for (j = 0; !done && j < q2n; j ++) {
-            b = q2[j];
-            visited[b->idx] ++;  // done for this layer, make them all 2
-        }
-        q3 = q1;
-        q1 = q2;
-        q2 = q3;
-        q1n = q2n;
-        q2n = 0;
-        d ++;
-    } while (q1n && !done);
-    
-    if (!done) return;
-    
-    *len = d;
-    
-    // backtrace done node to make buff
-    buff = malloc(d * sizeof(char *));
-    //assert(buff);
-    
-    bt(nodes, done, buff, p, psz, pn, *len, d - 1);
-    
-    free(buff);
+void bt(node_t *nodes, node_t *n, char **buff, res_t *res, int l, int d) {
+    int i;
+    
+    if (n->idx == -1) {  // done
+        buff[d] = n->s;
+        add2res(res, buff, l);
+        return;
+    }
+    buff[d] = n->s;
+    for (i = 0; i < n->pn; i ++) {
+        bt(nodes, &nodes[n->p[i]], buff, res, l, d - 1);
+    }
+}
+void bfs(q_t *q1, q_t *q2, node_t *nodes, int sz, char *end, int *visited, res_t *res) {
+    node_t *done, *a, *b;
+    q_t *q3;
+    int d = 1, i;
+    
+    char **buff;
+    
+    done = NULL;
+    while (q1->n && !done) {
+        while (q1->n) {
+            a = q1->q[-- q1->n];
+            for (i = 0; i < sz; i ++) {
+                if (visited[i] > 1) continue;
+                b = &nodes[i];
+                if (one_diff(a->s, b->s)) {
+                    if (!done && !strcmp(b->s, end)) done = b;
+                    if (!visited[i]) {
+                        q2->q[q2->n ++] = b;
+                        visited[i] = 1;     // 1 means it is just added into q2
+                    }
+                    add2prev(b, a->idx);    // add a as a preceeding node of b
+                }
+            }
+        }
+        for (i = 0; !done && i < q2->n; i ++) {
+            b = q2->q[i];
+            visited[b->idx] ++;  // done for this layer, make them all 2
+        }
+        q3 = q1;
+        q1 = q2;
+        q2 = q3;
+        d ++;
+    }
+    
+    if (!done) return;
+    
+    res->d = d;
+    
+    // backtrace done node to make buff
+    buff = malloc(d * sizeof(char *));
+    //assert(buff);
+    
+    bt(nodes, done, buff, res, d, d - 1);
+    
+    free(buff);
 }
 char*** findLadders(char* beginWord, char* endWord, char** wordList, int wordListSize, int** columnSizes, int* returnSize) {
-    int *visited;
-    node_t *n, *nodes, **q1, **q2;
-    node_t root = { 0 };
-    int i, len = 0;
-    
-    char ***p;
-    int psz, pn;
-    
-    p = NULL;
-    psz = pn = 0;
-    
-    visited = calloc(wordListSize, sizeof(int));
-    nodes = malloc((wordListSize + 1) * sizeof(node_t));
-    q1 = malloc(wordListSize * 2 * sizeof(node_t *));
-    //assert(visited && nodes && q1);
-    q2 = &q1[wordListSize];
-    
-    n = &nodes[0];
-    n->idx = -1;
-    n->s = beginWord;
-    for (i = 0; i < wordListSize; i ++) {
-        n = &nodes[i + 1];
-        n->idx = i;
-        n->s = wordList[i];
-        n->p = NULL;
-        n->psz = 0;
-        n->pn = 0;
-    }
-    
-    q1[0] = &nodes[0];
-    
-    bfs(q1, q2, &nodes[1], wordListSize, endWord, visited, &len, &p, &psz, &pn);
-    
-    free(visited);
-    free(q1);
-    for (i = 1; i <= wordListSize; i ++) {
-        n = &nodes[i];
-        if (n->p) free(n->p);
-    }
-    free(nodes);
-    
-    if (pn) {
-        *columnSizes = malloc(pn * sizeof(int));
-        //assert(*columnSizes);
-    }
-    for (i = 0; i < pn; i ++) {
-        (*columnSizes)[i] = len;
-    }
-    
-    *returnSize = pn;
-    
-    return p;
+    int *visited, i;
+    node_t *n, *nodes;
+    q_t q1 = { 0 }, q2 = { 0 };
+    res_t res = { 0 };
+    
+    visited = calloc(wordListSize, sizeof(int));
+    nodes = malloc((wordListSize + 1) * sizeof(node_t));
+    q1.q = malloc(wordListSize * 2 * sizeof(node_t *));
+    //assert(visited && nodes && q1.q);
+    q2.q = &q1.q[wordListSize];
+    
+    n = &nodes[0];
+    n->idx = -1;
+    n->s = beginWord;
+    for (i = 0; i < wordListSize; i ++) {
+        n = &nodes[i + 1];
+        n->idx = i;
+        n->s = wordList[i];
+        n->p = NULL;
+        n->psz = 0;
+        n->pn = 0;
+    }
+    
+    q1.q[q1.n ++] = &nodes[0];
+    
+    bfs(&q1, &q2, &nodes[1], wordListSize, endWord, visited, &res);
+    
+    free(visited);
+    free(q1.q);
+    for (i = 1; i <= wordListSize; i ++) {
+        n = &nodes[i];
+        if (n->p) free(n->p);
+    }
+    free(nodes);
+    
+    if (res.pn) {
+        *columnSizes = malloc(res.pn * sizeof(int));
+        //assert(*columnSizes);
+    }
+    for (i = 0; i < res.pn; i ++) {
+        (*columnSizes)[i] = res.d;
+    }
+    
+    *returnSize = res.pn;
+    
+    return res.p;
 }
-
 
 /*
 Difficulty:Hard
