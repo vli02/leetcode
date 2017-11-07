@@ -110,10 +110,12 @@ void *func_write(void *arg) {
         k = write_to_pipe(p, &data[pos], size - pos);
         if (k < 0) {
             printf("write fail, pipe full.\n");
-            return;
+            return NULL;
         }
         pos += k;
     }
+    
+    return NULL;
 }
 
 
@@ -136,6 +138,8 @@ void *func_read(void *arg) {
     printf("\n");
 
     printf("%d\n", cnt);
+    
+    return NULL;
 }
 
 
