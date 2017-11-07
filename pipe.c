@@ -15,7 +15,7 @@ typedef struct pipe_s {
 
 // publich interfaces
 
-pipe_t *open_pipe() {
+pipe_t *pipe_open() {
     pipe_t *p = malloc(sizeof(pipe_t));
     if (p) {
         p->pos = 0;
@@ -30,8 +30,8 @@ void pipe_close(pipe_t *p) {
     if (p) {
         pthread_mutex_destroy(&p->mtx);
         pthread_cond_destroy(&p->cv);
+        free(p);
     }
-    free(p);
 }
 
 unsigned int write_to_pipe(pipe_t *p, char *buff, size_t size)
@@ -143,30 +143,33 @@ int main(int argc, char *argv[])
 {
     pipe_t *p;
     pthread_t read_thr, write_thr;
-    int rc;
+    int rc = 0;
     void *ret;
 
-    p = open_pipe();
+    p = pipe_open();
     if (!p) {
         printf("failed to open\n");
+        rc = -1;
+        goto cu0;
     }
 
     rc = pthread_create(&write_thr, NULL, func_write, p);
     if (rc != 0) {
-        goto cu0;
+        goto cu1;
     }
 
     rc = pthread_create(&read_thr, NULL, func_read, p);
     if (rc != 0) {
-        goto cu0;
+        goto cu2;
     }
 
-cu0:
     // clean up
-    pthread_join(write_thr, &ret);
     pthread_join(read_thr, &ret);
-
+cu2:
+    pthread_join(write_thr, &ret);
+cu1:
     pipe_close(p);
-
-    return 0;
+cu0:
+    
+    return rc;
 }
