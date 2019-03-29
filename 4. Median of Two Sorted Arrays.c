@@ -32,13 +32,13 @@ int bs(int *n, int sz, int k) {
             i = m + 1;
         }
     }
-    return j;
+    return j;   // this is the lastest one which is not greater than k
 }
 double bs2(int *n1, int sz1, int *n2, int sz2, int m, int m1) {
     double d;
     int i;
-    i = bs(n1, sz1, n2[0]);
-    if (i >= m) {
+    i = bs(n1, sz1, n2[0]); // search in first array
+    if (i >= m) {           // median is in the first array
         d = n1[m];
         if (m1) {
             if (i > m) {
@@ -48,13 +48,13 @@ double bs2(int *n1, int sz1, int *n2, int sz2, int m, int m1) {
             }
             d /= 2;
         }
-    } else if (i == sz1 - 1) {
+    } else if (i == sz1 - 1) {  // median is in the second array
         d = n2[m - i - 1];
         if (m1) {
             d += n2[m - i];
             d /= 2;
         }
-    } else {
+    } else {                    // reverse arrays and search again
         d = bs2(n2, sz2, &n1[i + 1], sz1 - i - 1, m - i - 1, m1);
     }
     return d;
