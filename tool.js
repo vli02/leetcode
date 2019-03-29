@@ -1,39 +1,44 @@
     var code, tag, links
 
-    var question = $('h3')[0].textContent.trim()
+    var question = $('#question-title').textContent.trim()
 
-    var difficulty = $('span.pull-right.difficulty-label.round.label')[0].textContent
+    var difficulty = $('div.css-10o4wqw > div').textContent.trim()
 
-    var description = $('div.question-description')[0].textContent.trim()
+    var description = $('div.darker-content__naal > div').textContent.trim()
 
     code = ""
-    var lines=$('pre.CodeMirror-line')
-    for (i = 1; i < lines.length; i ++) {
-        code += lines[i].textContent + '\n'
+    var lines=$('div.CodeMirror-code').children
+    for (i = 0; i < lines.length; i ++) {
+        code += lines[i].children[1].textContent + '\n'
     }
 
-    tag = ""
-    var tags=$('#desktop-side-bar > div > ul > li')
+    tag = "Difficulty:" + difficulty
+    /*var tags=$('#desktop-side-bar > div > ul > li')
     for (i = 0; i < tags.length && i < 3; i ++) {
         tag += tags[i].textContent + '\n'
-    }
+    }*/
 
     link = ""
-    var misc = $('#desktop-side-bar > div > ul > li.list-item-tags > div.tags > #all-tags > div.tag-section')
+    /*var misc = $('#desktop-side-bar > div > ul > li.list-item-tags > div.tags > #all-tags > div.tag-section')
     for (i = 0; i < misc.length; i ++) {
         if (i < 2) {
             link += misc[i].textContent.trim().replace(/\s+/g, ' ') + '\n'
         } else {
             link += misc[i].textContent.trim()
         }
-    }
+    }*/
 
-    function downloadContent(name, content) {
-        var atag = document.createElement("a");
-        var file = new Blob([content], {type: 'text/plain'});
-        atag.href = URL.createObjectURL(file);
-        atag.download = name;
-        atag.click();
+    function downloadContent(filename, text) {
+      var element = document.createElement('a');
+      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+      element.setAttribute('download', filename);
+
+      element.style.display = 'none';
+      document.body.appendChild(element);
+
+      element.click();
+
+      document.body.removeChild(element);
     }
 
     downloadContent(question + '.c',
