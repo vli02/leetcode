@@ -23,7 +23,7 @@ char* longestPalindrome(char* s) {
     int i, j, k, l;
     int where = 0, len = 0;
     
-    if (!s || !*s) return 0;
+    if (!s || !*s) return s;
     
     sz = strlen(s);
 ​
