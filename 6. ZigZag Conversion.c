@@ -18,37 +18,37 @@ convert("PAYPALISHIRING", 3) should return "PAHNAPLSIIGYIR".
 */
 
 char* convert(char* s, int numRows) {
-    int len;
-    int i, j, k = 0;
-    char *p;
-    int step, up;
-    
-    if (!s || numRows == 1) return s;
-    
-    len = strlen(s);
-    p = malloc((len + 1) * sizeof(char));
-    //assert(p);
-    
-    step = numRows * 2 - 2;
-    
-    for (i = 0; i < numRows; i ++) {
-        j = i;
-        up = 1;
-        while (j < len) {
-            p[k ++] = s[j];
-            if (i == 0 || i == numRows - 1) {
-                j += step;
-            } else if (up) {
-                j += step - i * 2;
-                up = 0;
-            } else {
-                j += i * 2;
-                up = 1;
-            }
-        }
-    }
-    p[k] = 0;
-    return p;
+    int len;
+    int i, j, k = 0;
+    char *p;
+    int step, up;
+    
+    if (!s || !*s || numRows == 1) return s;
+    
+    len = strlen(s);
+    p = malloc((len + 1) * sizeof(char));
+    //assert(p);
+    
+    step = (numRows - 1) * 2;       // max span
+    
+    for (i = 0; i < numRows; i ++) {
+        j = i;                      // first letter of each row
+        up = 1;
+        while (j < len) {
+            p[k ++] = s[j];
+            if (i == 0 || i == numRows - 1) {
+                j += step;          // full span
+            } else if (up) {
+                j += step - i * 2;  // full span - offset
+                up = 0;
+            } else {
+                j += i * 2;         // offset
+                up = 1;
+            }
+        }
+    }
+    p[k] = 0;
+    return p;
 }
 
 
