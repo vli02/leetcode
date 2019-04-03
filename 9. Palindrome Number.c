@@ -32,7 +32,6 @@ bool isPalindrome(int x) {
     int n, d, k = 0;
     
     if (x < 0) return false;
-    if (x == 0) return true;
     
     n = x;
     while (n) {
