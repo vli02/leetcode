@@ -29,18 +29,19 @@ The input is assumed to be a 32-bit signed integer. Your function should return 
 */
 
 int reverse(int x) {
-    int k = 0;
-    // 2147483647
-    //-2147483648
-    while (x) {
-        if ((x > 0 && k > (0x7fffffff - (x % 10)) / 10) ||
-            (x < 0 && k < ((signed)0x80000000 - (x % 10)) / 10)) {
-            return 0;
-        }
-        k = k * 10 + x % 10;
-        x = x / 10;
-    }
-    return k; //(int)k == k ? (int)k : 0;
+    int d, k = 0;
+    // 2147483647
+    //-2147483648
+    while (x) {
+        d = x % 10;
+        if ((x > 0 && k > (0x7fffffff - d) / 10) ||
+            (x < 0 && k < ((signed)0x80000000 - d) / 10)) {
+            return 0;   // overflow
+        }
+        k = k * 10 + d;
+        x = x / 10;
+    }
+    return k; //(int)k == k ? (int)k : 0;
 }
 
 
