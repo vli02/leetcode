@@ -20,31 +20,31 @@ Try to do this in one pass.
 /**
  * Definition for singly-linked list.
  * struct ListNode {
- *     int val;
- *     struct ListNode *next;
+ *     int val;
+ *     struct ListNode *next;
  * };
  */
 struct ListNode* removeNthFromEnd(struct ListNode* head, int n) {
-    struct ListNode *a, *b, *p = NULL;
-    a = b = head;
-    while (n-- > 0) {
-        b = b->next;
-    }
-    
-    while (b) {
-        p = a;
-        a = a->next;
-        b = b->next;
-    }
-    
-    if (a == head) {
-        head = a->next;
-    } else {
-        p->next = a->next;
-    }
-    free(a);
-    
-    return head;
+    struct ListNode *a, *b, *p = NULL;
+    a = b = head;
+    while (n-- > 0) {       // b moves n steps first
+        b = b->next;
+    }
+    
+    while (b) {             // a, b move together, keeps a gap of n steps
+        p = a;
+        a = a->next;
+        b = b->next;
+    }
+    
+    if (a == head) {        // a is the one to be removed
+        head = a->next;
+    } else {
+        p->next = a->next;
+    }
+    free(a);
+    
+    return head;
 }
 
 
