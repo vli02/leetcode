@@ -18,57 +18,64 @@ Output: -1->0->3->4->5
 /**
  * Definition for singly-linked list.
  * struct ListNode {
- *     int val;
- *     struct ListNode *next;
+ *     int val;
+ *     struct ListNode *next;
  * };
  */
 struct ListNode* divide(struct ListNode *p) {
-    struct ListNode *a, *b;
-    a = p;
-    b = p->next;
-    
-    while (b) {
-        b = b->next;        // b moves two steps
-        if (b) {
-            a = a->next;    // a moves one steps
-            b = b->next;
-        }
-    }
-    
-    b = a->next;            // this is the middle point
-    a->next = NULL;
-    
-    return b;
+    struct ListNode *a, *b;
+    a = p;
+    b = p->next;
+    
+    while (b) {
+        b = b->next;        // b moves two steps
+        if (b) {
+            a = a->next;    // a moves one steps
+            b = b->next;
+        }
+    }
+    
+    b = a->next;            // this is the middle point
+    a->next = NULL;
+    
+    return b;
 }
-​
-struct ListNode* merge(struct ListNode *a, struct ListNode *b) {
-    struct ListNode head, *p, *c;
-    
-    p = &head;
-    
-    while (a && b) {
-        if (a->val < b->val) {
-            c = a;
-            a = a->next;
 
-            c = b;
-            b = b->next;
-        }
-        p->next = c;
-        p = c;
-    }
-    
-    p->next = a ? a : b;
-    
-    return head.next;
+struct ListNode* merge(struct ListNode *a, struct ListNode *b) {
+    struct ListNode head, *p, *c;
+    
+    p = &head;
+    
+    while (a && b) {
+        if (a->val < b->val) {
+            c = a;
+            a = a->next;
+        } else {
+            c = b;
+            b = b->next;
+        }
+        p->next = c;
+        p = c;
+    }
+    
+    p->next = a ? a : b;
+    
+    return head.next;
 }
 struct ListNode* sortList(struct ListNode* head) {
-    struct ListNode *p, *a, *b;
-    
-    if (!head || !head->next) return head;
-    
-    p = divide(head);       // divide the list to two
-    
+    struct ListNode *p, *a, *b;
+    
+    if (!head || !head->next) return head;
+    
+    p = divide(head);       // divide the list to two
+    
+    a = sortList(head);     // sort separately
+    b = sortList(p);
+    
+    p = merge(a, b);        // and merge them
+    
+    return p;
+}
 
 
 /*
