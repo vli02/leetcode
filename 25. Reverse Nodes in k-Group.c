@@ -27,52 +27,50 @@ For k = 3, you should return: 3->2->1->4->5
 /**
  * Definition for singly-linked list.
  * struct ListNode {
- *     int val;
- *     struct ListNode *next;
+ *     int val;
+ *     struct ListNode *next;
  * };
  */
 struct ListNode* reverseKGroup(struct ListNode* head, int k) {
-    struct ListNode *node, *prev = NULL, *ret = NULL;
-    struct ListNode *next;
-    struct ListNode **stack;
-    int i;
-    
-    if (k <= 1) return head;
-    
-    stack = malloc(k * sizeof(struct ListNode *));
-    //assert(stack);
-    
+    struct ListNode *node, *next;
+    struct ListNode **stack;
+    struct ListNode dummy = { 0 }, *p;
+    int i;
+    
+    if (k <= 1) return head;
+    
+    stack = malloc(k * sizeof(struct ListNode *));
+    //assert(stack);
+    
 #define PUSH(NODE) do { stack[i++] = NODE; } while (0)
 #define POP(NODE) do { NODE = stack[--i]; } while (0)
-    
-    node = head;
-    
-    while (node) {
-        i = 0;
-        while (i < k && node) {
-            PUSH(node);
-            node = node->next;
-        }
-        next = node;
-        
-        if (i < k) {
-            if (!ret) ret = head;
-            free(stack);
-            return ret;
-        }
-        
-        while (i > 0) {
-            POP(node);
-            if (!ret) ret = node;
-            if (prev) prev->next = node;
-            prev = node;
-        }
-        prev->next = next;
-        node = next;
-    }
-    
-    free(stack);
-    return ret;
+    
+    p = &dummy;
+    
+    p->next = node = head;
+    while (node) {
+        i = 0;
+        while (i < k && node) {
+            PUSH(node);
+            node = node->next;
+        }
+        next = node;
+        
+        if (i < k) {
+            free(stack);
+            return dummy.next;
+        }
+        
+        while (i > 0) {
+            POP(node);
+            p->next = node;
+            p = node;
+        }
+        p->next = node = next;
+    }
+    
+    free(stack);
+    return dummy.next;
 }
 
 
