@@ -13,47 +13,47 @@ A solution using O(n) space is pretty straight forward. Could you devise a const
 /**
  * Definition for a binary tree node.
  * struct TreeNode {
- *     int val;
- *     struct TreeNode *left;
- *     struct TreeNode *right;
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
  * };
  */
 void find_nodes(struct TreeNode *node,
-                struct TreeNode **first,
-                struct TreeNode **middle,
-                struct TreeNode **last,
-                struct TreeNode **prev) {
-    if (!node || *last) return;
-    
-    find_nodes(node->left, first, middle, last, prev);
-    
-    if (*prev && (*prev)->val > node->val) {
-        if (!*first) {
-            *first = *prev;
-            *middle = node;
-        } else {
-            *last = node;
-            return;
-        }
-    }
-    *prev = node;
-    
-    find_nodes(node->right, first, middle, last, prev);
+                struct TreeNode **n1,
+                struct TreeNode **n2,
+                struct TreeNode **n3,
+                struct TreeNode **p) {
+    if (!node || *n3) return;            // all are found
+    
+    find_nodes(node->left, n1, n2, n3, p);
+    
+    if (*p && (*p)->val > node->val) {  // found two nodes in wrong order
+        if (!*n1) {
+            *n1 = *p;                   // save first node
+            *n2 = node;                 // save second node
+        } else {
+            *n3 = node;                 // save third node
+            return;                     // all are found
+        }
+    }
+    *p = node;
+    
+    find_nodes(node->right, n1, n2, n3, p);
 }
 void recoverTree(struct TreeNode* root) {
-    struct TreeNode *first, *middle, *last, *prev;
-    int k;
-    
-    first = middle = last = prev = NULL;
-    
-    find_nodes(root, &first, &middle, &last, &prev);
-    
-    if (first) {
-        last = last ? last : middle;
-        k = first->val;
-        first->val = last->val;
-        last->val = k;
-    }
+    struct TreeNode *n1, *n2, *n3, *p;
+    int k;
+    
+    n1 = n2 = n3 = p = NULL;
+    
+    find_nodes(root, &n1, &n2, &n3, &p);
+    
+    if (n1) {
+        if (!n3) n3 = n2;
+        k = n1->val;            // swap first and third node
+        n1->val = n3->val;
+        n3->val = k;
+    }
 }
 
 
