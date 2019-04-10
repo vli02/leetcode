@@ -31,75 +31,100 @@ return its level order traversal as:
  * };
  */
 /**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+/**
  * Return an array of arrays of size *returnSize.
  * The sizes of the arrays are returned as *columnSizes array.
  * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
  */
-int depth(struct TreeNode *node) {
-    int l, r;
-    if (!node) return 0;
-    l = depth(node->left)  + 1;
-    r = depth(node->right) + 1;
-    if (l > r) return l;
-    return r;
+typedef struct {
+    struct TreeNode **q;
+    int n;
+    int sz;
+} q_t;
+
+void add2q(q_t *q, struct TreeNode *node) {
+    if (q->n == q->sz) {
+        q->sz *= 2;
+        q->q = realloc(q->q, q->sz * sizeof(struct TreeNode *));
+        //assert(q->q);
+    }
+    q->q[q->n ++] = node;
 }
-void bfs(int **p, struct TreeNode **queue, int n, int *c, int d) {
-    int *buff, buffsz, newqsz, k, i;
-    struct TreeNode *node, **newq;
-    
-    buffsz = 10;
-    buff = malloc(buffsz * sizeof(int));
-    newqsz = 10;
-    newq = malloc(newqsz * sizeof(struct TreeNode *));
-    //assert(buff && new_p);
-    
-    k = 0;
-    for (i = 0; i < n; i ++) {
-        node = queue[i];
-        //printf("%d, ", node->val);
-        if (c[d] >= buffsz) {
-            buffsz *= 2;
-            buff = realloc(buff, buffsz * sizeof(int));
-            //assert(buff);
-        }
-        buff[c[d]] = node->val;
-        c[d] ++;
-        if (k + 1 >= newqsz) {
-            newqsz *= 2;
-            newq = realloc(newq, newqsz * sizeof(struct TreeNode *));
-            //assert(newq);
-        }
-        if (node->left)  newq[k ++] = node->left;
-        if (node->right) newq[k ++] = node->right;
-    }
-    //printf("done!\n");
-    free(queue);
-    p[d] = buff;
-    if (k) bfs(p, newq, k, c, d + 1);
-    else free(newq);
+
+int depth(struct TreeNode *node) {
+    int l, r;
+    if (!node) return 0;
+    l = depth(node->left)  + 1;
+    r = depth(node->right) + 1;
+    if (l > r) return l;
+    return r;
+}
+void bfs(int **p, q_t *q1, q_t *q2, int *c, int d) {
+    int *buff, buffsz, i;
+    struct TreeNode *node;
+    
+    if (!q1->n) return;
+    
+    buffsz = 10;
+    buff = malloc(buffsz * sizeof(int));
+    
+    for (i = 0; i < q1->n; i ++) {
+        node = q1->q[i];
+        //printf("%d, ", node->val);
+        if (c[d] >= buffsz) {
+            buffsz *= 2;
+            buff = realloc(buff, buffsz * sizeof(int));
+            //assert(buff);
+        }
+        buff[c[d]] = node->val;
+        c[d] ++;
+        
+        if (node->left)  add2q(q2, node->left);
+        if (node->right) add2q(q2, node->right);
+    }
+    //printf("done!\n");
+    
+    p[d] = buff;
+    
+    q1->n = 0;
+    bfs(p, q2, q1, c, d + 1);
 }
 int** levelOrder(struct TreeNode* root, int** columnSizes, int* returnSize) {
-    int d, n;
-    int **p, *c;
-    struct TreeNode **queue;
-    
-    *returnSize = 0;
-    if (!root) return NULL;
-    
-    d = depth(root);
-    p = malloc(d * sizeof(int *));
-    c = calloc(d, sizeof(int));
-    queue = malloc(1 * sizeof(struct TreeNode *));
-    //assert(p && q);
-    n = 0;
-    queue[n ++] = root;
-    
-    bfs(p, queue, n, c, 0);
-    
-    *returnSize = d;
-    *columnSizes = c;
-    
-    return p;
+    int d;
+    int **p, *c;
+    q_t q1 = { 0 }, q2 = { 0 };
+    
+    *returnSize = 0;
+    if (!root) return NULL;
+    
+    d = depth(root);
+    p = malloc(d * sizeof(int *));
+    c = calloc(d, sizeof(int));
+    //assert(p && c);
+    
+    q1.sz = q2.sz = 10;
+    q1.q = malloc(q1.sz * sizeof(struct TreeNode *));
+    q2.q = malloc(q2.sz * sizeof(struct TreeNode *));
+    //assert(q1.q && q2.q);
+    
+    add2q(&q1, root);
+    
+    bfs(p, &q1, &q2, c, 0);
+    
+    *returnSize = d;
+    *columnSizes = c;
+    
+    free(q1.q);
+    free(q2.q);
+    
+    return p;
 }
 
 
