@@ -95,7 +95,7 @@ int lookup_remove(set_t *set, int x, int y) {
     return 0;
 }
 void add2set(set_t *set, int x, int y) {
-    dot_t *d = malloc(sizeof(set_t));
+    dot_t *d = malloc(sizeof(dot_t));
     //assert(d);
     d->x = x;
     d->y = y;
