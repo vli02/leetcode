@@ -4,8 +4,9 @@
 
     var difficulty = $('div.css-10o4wqw > div').textContent.trim()
 
-    var description = $('div.darker-content__naal > div').textContent.trim()
-
+    //var description = $('div.darker-content__naal > div').textContent.trim()
+    var description = $('div > div.content__u3I1').textContent.trim()
+    
     code = ""
     var lines=$('div.CodeMirror-code').children
     for (i = 0; i < lines.length; i ++) {
