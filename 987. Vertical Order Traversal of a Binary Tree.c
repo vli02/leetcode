@@ -53,9 +53,9 @@ Note:
 /**
  * Definition for a binary tree node.
  * struct TreeNode {
- *     int val;
- *     struct TreeNode *left;
- *     struct TreeNode *right;
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
  * };
  */
 /**
@@ -64,8 +64,81 @@ Note:
  * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
  */
 typedef struct {
-    int val;
-
+    int val;
+    int x;
+    int y;
+} elem_t;
+void traversal(elem_t **p, int *sz, int *n, struct TreeNode *node, int x, int y) {
+    if (!node) return;
+    if (*sz == *n) {
+        *sz *= 2;
+        *p = realloc(*p, (*sz) * sizeof(elem_t));
+        //assert(*p);
+    }
+    (*p)[*n].val = node->val;
+    (*p)[*n].x   = x;
+    (*p)[*n].y   = y;
+    (*n) ++;
+    traversal(p, sz, n, node->left,  x - 1, y + 1);
+    traversal(p, sz, n, node->right, x + 1, y + 1);
+}
+int cmp(const void *a, const void *b) {
+    elem_t *ea = a, *eb = b;
+    int k = ea->x - eb->x;
+    if (k == 0) k = ea->y - eb->y;
+    if (k == 0) k = ea->val - eb->val;
+    return k;
+}
+int** verticalTraversal(struct TreeNode* root, int** columnSizes, int* returnSize) {
+    elem_t *p;
+    int sz, n;
+    int **ret, *buff, buff_sz, i, j, k;
+    
+    if (!root) return NULL;
+    
+    sz = 100;
+    p = malloc(sz * sizeof(elem_t));
+    //assert(p);
+    n = 0;
+    
+    // put all nodes into the array
+    traversal(&p, &sz, &n, root, 0, 0);
+    
+    // sort all nodes according to x and y
+    qsort(p, n, sizeof(elem_t), cmp);
+    
+    // make the array for return
+    k = p[n - 1].x - p[0].x + 1;
+    ret = malloc(k * sizeof(int *));
+    (*columnSizes) = calloc(k, sizeof(int));
+    //assert(ret && *columnSizes);
+    
+    *returnSize = k;
+    
+    j = k = 0;
+    for (i = 0; i < n; i ++) {
+        //printf("%d, ", p[i].val);
+        if (j == 0 || p[i].x != p[i - 1].x) {
+            j = 0;
+            buff_sz = 10;
+            buff = malloc(buff_sz * sizeof(int));
+            //assert(buff);
+            ret[k ++] = buff;
+        }
+        if (buff_sz == j) {
+            buff_sz *= 2;
+            buff = realloc(buff, buff_sz * sizeof(int));
+            //assert(buff);
+            ret[k - 1] = buff;
+        }
+        buff[j ++] = p[i].val;
+        (*columnSizes)[k - 1] = j;
+    }
+    
+    free(p);
+    
+    return ret;
+}
 
 
 /*
