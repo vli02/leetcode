@@ -25,33 +25,36 @@ The number of ways decoding "12" is 2.
 */
 
 int numDecodings(char* s) {
-    int a, b, c;
-    char p, t;
-    
-    a = 0;
-    b = 1;
-    c = 0;
-    p = '0';
-    
-    while (t = *s) {
-        s ++;
-        if (t == '0') {
-            if (p != '1' && p != '2') {
-                return 0;
-            }
-            c = a;
-        } else {
-            c = b;
-            if (p == '1' || (p == '2' && t <= '6')) {
-                c += a;
-            }
-        }
-        a = b;
-        b = c;
-        p = t;
-    }
-​
-    return c;
+    int a, b, c;
+    char p, t;
+    
+    /* a b c
+           2267312
+       0 1 
+    */
+    a = 0;
+    b = 1;
+    c = 0;
+    p = 'x';    // anything other than '1' or '2'
+    
+    while (t = *s ++) {
+        if (t == '0') {
+            if (p != '1' && p != '2') {
+                return 0;
+            }
+            c = a;
+        } else {
+            c = b;
+            if (p == '1' || (p == '2' && t <= '6')) {
+                c += a;
+            }
+        }
+        a = b;
+        b = c;
+        p = t;
+    }
+
+    return c;
 }
 
 
