@@ -16,26 +16,16 @@ If you have figured out the O(n) solution, try coding another solution using the
 */
 
 int maxSubArray(int* nums, int numsSize) {
-    int i, j, s, m = 0;
-#if 0
-    // O(n2)
-    for (i = 0; i < numsSize; i ++) {
-        s = nums[i]; if (i == 0 || m < s) m = s;
-        for (j = i + 1; j < numsSize; j ++) {
-            s += nums[j]; if (m < s) m = s;
-        }
-    }
-#else
-    m = s = nums[0];
-    for (i = 1; i < numsSize; i ++) {
-        //printf("s: %d, m: %d\n", s, m);
-        if (s > 0) s += nums[i];
-        else       s  = nums[i];
-        if (m < s) m = s;
-    }
-    //printf("s: %d, m: %d\n", s, m);
-#endif
-    return m;
+    int i, s, m = 0;
+    m = s = nums[0];
+    for (i = 1; i < numsSize; i ++) {
+        //printf("s: %d, m: %d\n", s, m);
+        if (s > 0) s += nums[i];
+        else       s  = nums[i];
+        if (m < s) m = s;
+    }
+    //printf("s: %d, m: %d\n", s, m);
+    return m;
 }
 
 
