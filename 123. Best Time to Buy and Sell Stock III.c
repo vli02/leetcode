@@ -10,23 +10,22 @@ You may not engage in multiple transactions at the same time (ie, you must sell 
 */
 
 int maxProfit(int* prices, int pricesSize) {
-    int buy1, buy2;     // max profit if I buy
-    int sell1, sell2;   // max profit if I sell
-    int i;
-    
-    if (pricesSize < 2) return 0;
-    
-    buy1 = buy2 = 0 - prices[0];
-    sell1 = sell2 = 0;
-    
-    for (i = 1; i < pricesSize; i ++) {
-        sell1 = sell1 > buy1  + prices[i] ? sell1 : buy1  + prices[i];
-        sell2 = sell2 > buy2  + prices[i] ? sell2 : buy2  + prices[i];
-        buy1 = buy1  > 0     - prices[i] ? buy1  : 0     - prices[i];
-        buy2 = buy2  > sell1 - prices[i] ? buy2  : sell1 - prices[i];
-    }
-    
-    return sell2;
+    int buy1, buy2;     // max profit if I buy
+    int sell1, sell2;   // max profit if I sell
+    int i;
+    
+    buy1 = buy2 = 0x80000000;   // min of integer
+    sell1 = sell2 = 0;
+    
+    for (i = 0; i < pricesSize; i ++) {
+                        // possible profit
+        buy1  = buy1  > 0     - prices[i] ? buy1  : 0     - prices[i];
+        sell1 = sell1 > buy1  + prices[i] ? sell1 : buy1  + prices[i];
+        buy2  = buy2  > sell1 - prices[i] ? buy2  : sell1 - prices[i];
+        sell2 = sell2 > buy2  + prices[i] ? sell2 : buy2  + prices[i];
+    }
+    
+    return sell2;
 }
 
 
