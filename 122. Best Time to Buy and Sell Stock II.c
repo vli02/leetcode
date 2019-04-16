@@ -7,16 +7,17 @@ Design an algorithm to find the maximum profit. You may complete as many transac
 */
 
 int maxProfit(int* prices, int pricesSize) {
-    int i, p;
-    
-    p = 0;
-    for (i = 1; i < pricesSize; i ++) {
-        if (prices[i] > prices[i - 1]) {
-            p += prices[i] - prices[i - 1]; // get it as long as it is a profit!
-        }
-    }
-​
-    return p;
+    int i, d, p;
+    
+    if (pricesSize < 2) return 0;
+    
+    p = 0;
+    for (i = 1; i < pricesSize; i ++) {
+        d = prices[i] - prices[i - 1];
+        p = d > 0 ? p + d : p;  // get it as long as it is a profit!
+    }
+
+    return p;
 }
 
 
