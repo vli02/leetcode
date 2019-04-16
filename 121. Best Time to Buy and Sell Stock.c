@@ -21,30 +21,22 @@ In this case, no transaction is done, i.e. max profit = 0.
 */
 
 int maxProfit(int* prices, int pricesSize) {
-    int i, j, d, k = 0;
-    
-#if 0   // O(n^2)
-    for (i = 0; i < pricesSize - 1; i ++) {
-        if (prices[i] < prices[i + 1]) {
-            for (j = i + 1; j < pricesSize; j ++) {
-                d = prices[j] - prices[i];
-                k = k < d ? d : k;
-            }
-        }
-    }
-#else   // O(n)
-    int cost = prices[0];
-    for (i = 1; i < pricesSize; i ++) {
-        if (prices[i] > cost) {
-            d = prices[i] - cost;
-            k = d > k ? d : k;
-        } else {
-            cost = prices[i];
-        }
-    }
-#endif
-​
-    return k;
+    int i, d, k = 0;
+    
+    if (pricesSize < 2) return 0;
+    
+    // O(n)
+    int cost = prices[0];
+    for (i = 1; i < pricesSize; i ++) {
+        if (prices[i] > cost) {
+            d = prices[i] - cost;
+            k = d > k ? d : k;
+        } else {
+            cost = prices[i];
+        }
+    }
+    
+    return k;
 }
 
 
