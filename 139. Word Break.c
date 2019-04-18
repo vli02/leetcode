@@ -19,35 +19,36 @@ The wordDict parameter had been changed to a list of strings (instead of a set o
 */
 
 bool search(char *s, int l, char **wordDict, int wordDictSize) {
-    int i;
-    char *word;
-    for (i = 0; i < wordDictSize; i ++) {
-        word = wordDict[i];
-        if (word && l == strlen(word) && !strncmp(s, word, l)) return true;
-    }
-    return false;
+    int i;
+    char *word;
+    for (i = 0; i < wordDictSize; i ++) {
+        word = wordDict[i];
+        if (word && l == strlen(word) && !strncmp(s, word, l)) return true;
+    }
+    return false;
 }
 bool wordBreak(char* s, char** wordDict, int wordDictSize) {
-    int i, j, l;
-    int *e;
-    
-    l = strlen(s);
-    
-    e = malloc((l + 1) * sizeof(int));
-    if (!s) return true;
-    
-    e[0] = true;
-    for (i = 0; i < l; i ++) {
-        e[i + 1] = false;
-        for (j = 0; !e[i + 1] && j <= i; j ++) {
-            e[i + 1] = e[j] && search(&s[j], i - j + 1, wordDict, wordDictSize);
-        }
-    }
-    
-    i = e[l];
-    free(e);
-    
-    return i;
+    int i, j, l;
+    bool *buff, *e, result;
+    
+    l = strlen(s);
+    
+    buff = calloc((l + 1), sizeof(bool));
+    //assert(buff);
+    
+    buff[0] = true;
+    e = &buff[1];
+    
+    for (i = 0; i < l; i ++) {
+        for (j = i; !e[i] && j >= 0; j --) {
+            e[i] = e[j - 1] && search(&s[j], i - j + 1, wordDict, wordDictSize);
+        }
+    }
+    
+    result = e[l - 1];
+    free(buff);
+    
+    return result;
 }
 
 
