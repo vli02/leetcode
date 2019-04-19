@@ -20,9 +20,9 @@ int numSquares(int n) {
     
     dp[0] = 0;
     for (i = 1; i <= n; i ++) {
-        k = dp[i - 1] + 1;
+        k = dp[i - 1] + 1;      // answer of preceeding number plus 1
         j = 2;
-        while (i >= j * j) {  // after j ^ 2
+        while (i >= j * j) {    // after j ^ 2
             if (k > dp[i - j * j] + 1) {
                 k = dp[i - j * j] + 1;
             }
@@ -36,6 +36,7 @@ int numSquares(int n) {
     
     return k;
 }
+
 
 /*
 Difficulty:Medium
