@@ -17,24 +17,20 @@ Follow up: Could you improve it to O(n log n) time complexity?
 Credits:Special thanks to @pbrother for adding this problem and creating all test cases.
 */
 
-int lower_bound(int *lens, int start, int end, int last, int k) {
+int lower_bound(int *p, int start, int end, int k) {
     int mid;
     
     if (start > end) {
-        // locate the first one which is not less than current number
-        if (start <= last && lens[start] > lens[last]) {
-            start ++;
-        }
         return start;
     }
     
     mid = start + (end - start) / 2;
     
-    if (lens[mid] == k) return mid;
+    if (p[mid] == k) return mid;
     
-    if (lens[mid] > k) return lower_bound(lens, start, mid - 1, last, k);
+    if (p[mid] > k) return lower_bound(p, start, mid - 1, k);
     
-    return lower_bound(lens, mid + 1, end, last, k);
+    return lower_bound(p, mid + 1, end, k);
 }
 int lengthOfLIS(int* nums, int numsSize) {
     int *lens, max, i, j;
@@ -48,32 +44,37 @@ int lengthOfLIS(int* nums, int numsSize) {
     
 #if 0   // O(n^2)   19ms
     for (i = 0; i < numsSize; i ++) {
-        lens[i] = 1;
+        lens[i] = 1;                    // starts from 1
         for (j = 0; j < i; j ++) {
-            if (nums[j] < nums[i] &&
-                lens[i] < lens[j] + 1) {
-                lens[i] = lens[j] + 1;
+            if (nums[i] > nums[j] &&        // a small number is ahead
+                lens[i] < lens[j] + 1) {    //
+                lens[i] = lens[j] + 1;      // increase 1
             }
         }
         if (max < lens[i]) max = lens[i];
     }
 #else   // O(nlogn) 3ms
-    int end = 0;
+    int last = 0;
+    int *p = lens;      // p is array of sorted numbers
     
-    lens[end] = nums[0];
-    
+    // initialize p with the first num
+    p[0] = nums[0];
+    // for the rest of nums
     for (i = 1; i < numsSize; i ++) {
-        j = lower_bound(lens, 0, end, end, nums[i]);
-        lens[j] = nums[i];
-        end = (j > end) ? j : end;
+        // find proper location of num in sorted array p
+        j = lower_bound(p, 0, last, nums[i]);
+        // save it in p
+        p[j] = nums[i];
+        if (last < j) last = j;
     }
-    max = end + 1;
+    max = last + 1;  // the length of final p is the answer
 #endif
     
     free(lens);
     
     return max;
 }
+
 
 /*
 Difficulty:Medium
