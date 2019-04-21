@@ -29,35 +29,34 @@ Explanation: The array cannot be partitioned into equal sum subsets.
 */
 
 bool canPartition(int* nums, int numsSize) {
-    int t, s, i, k, *dp;
-    
-    t = 0;
-    for (i = 0; i < numsSize; i ++) {
-        t += nums[i];
-    }
-    
-    if (t & 1) return false;
-​
-    t >>= 1;
-    
-    dp = calloc(t + 1, sizeof(int));
-    //assert(dp);
-    
-    dp[0] = 1;
-    for (i = 0; !dp[t] && i < numsSize; i ++) {
-        k = nums[i];
-        for (s = t; !dp[t] && s > 0; s --) {
-            if (!dp[s] && s >= k) {
-                dp[s] = dp[s - k];
-            }
-        }
-    }
-    
-    i = dp[t];
-    
-    free(dp);
-    
-    return i;
+    int t, s, i, k;
+    bool *dp, ans;
+    
+    t = 0;
+    for (i = 0; i < numsSize; i ++) {
+        t += nums[i];
+    }
+    
+    if (t & 1) return false;
+    
+    t >>= 1;
+    
+    dp = calloc(t + 1, sizeof(bool));
+    //assert(dp);
+    
+    dp[0] = true;
+    for (i = 0; !dp[t] && i < numsSize; i ++) {
+        k = nums[i];
+        for (s = t; s >= k; s --) {
+            dp[s] = dp[s - k];
+        }
+    }
+    
+    ans = dp[t];
+    
+    free(dp);
+    
+    return ans;
 }
 
 
