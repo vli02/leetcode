@@ -38,50 +38,76 @@ Return false. There is no way to jump to the last stone as
 the gap between the 5th and 6th stone is too large.
 */
 
+typedef struct {
+    int *p;
+    int n;
+    int sz;
 } steps_t;
-    
-    steps = &units[i];
-    
-    for (j = 0; j < steps->n; j ++) {
-        if (steps->p[j] == s) return;
-    }
-    
-    if (steps->sz == steps->n) {
-        if (steps->sz == 0) steps->sz = 10;
-        else steps->sz *= 2;
-        steps->p = realloc(steps->p, steps->sz * sizeof(int));
-        //assert(steps->p);
-    }
-    steps->p[steps->n ++] = s;
-}
-​
-bool canCross(int* stones, int stonesSize) {
-    steps_t units[1100] = { 0 }, *steps;
-    int i, j, u, s;
-    bool ans = false;
-    
-    if (stones[1] != 1) return false;
-    
-    add_step(stones, stonesSize, units, 1, 1);
-    
-    for (i = 1; i < stonesSize; i ++) {
-        u = stones[i];
-        steps = &units[i];
-        for (j = 0; j < steps->n; j ++) {
-            s = steps->p[j];
-            add_step(stones, stonesSize, units, u + s - 1, s - 1);
-            add_step(stones, stonesSize, units, u + s,     s);
-            add_step(stones, stonesSize, units, u + s + 1, s + 1);
-        }
-    }
 
-    if (units[stonesSize - 1].n > 0) ans = true;
-    
-    for (i = 0; i < 1100; i ++) {
-        if (units[i].p) free(units[i].p);
-    }
-    
-    return ans;
+int bs(int *stones, int start, int end, int u) {
+    int mid, m;
+    
+    if (start > end) return -1;
+    
+    mid = start + (end - start) / 2;
+    m = stones[mid];
+    
+    if (m == u) return mid;
+    else if (m < u) return bs(stones, mid + 1, end, u);
+    return bs(stones, start, mid - 1, u);
+}
+void add_step(int *stones, int sz, steps_t *units, int u, int s) {
+    int i, j;
+    steps_t *steps;
+    
+    if (s == 0) return;
+    
+    i = bs(stones, 0, sz - 1, u);
+    
+    if (i == -1) return;
+    
+    steps = &units[i];
+    
+    for (j = 0; j < steps->n; j ++) {
+        if (steps->p[j] == s) return;
+    }
+    
+    if (steps->sz == steps->n) {
+        if (steps->sz == 0) steps->sz = 10;
+        else steps->sz *= 2;
+        steps->p = realloc(steps->p, steps->sz * sizeof(int));
+        //assert(steps->p);
+    }
+    steps->p[steps->n ++] = s;
+}
+
+bool canCross(int* stones, int stonesSize) {
+    steps_t units[1100] = { 0 }, *steps;
+    int i, j, u, s;
+    bool ans = false;
+    
+    if (stones[1] != 1) return false;
+    
+    add_step(stones, stonesSize, units, 1, 1);
+    
+    for (i = 1; i < stonesSize; i ++) {
+        u = stones[i];
+        steps = &units[i];
+        for (j = 0; j < steps->n; j ++) {
+            s = steps->p[j];
+            add_step(stones, stonesSize, units, u + s - 1, s - 1);
+            add_step(stones, stonesSize, units, u + s,     s);
+            add_step(stones, stonesSize, units, u + s + 1, s + 1);
+        }
+    }
+    
+    if (units[stonesSize - 1].n > 0) ans = true;
+    
+    for (i = 0; i < 1100; i ++) {
+        if (units[i].p) free(units[i].p);
+    }
+    
+    return ans;
 }
 
 
