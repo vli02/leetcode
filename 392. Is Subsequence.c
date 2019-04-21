@@ -33,31 +33,56 @@ Credits:Special thanks to @pbrother for adding this problem and creating all tes
 */
 
 #define IDX(ROW, COL, SZ) ((ROW + 1) * (SZ + 1) + (COL + 1))
-​
-bool isSubsequence(char* s, char* t) {
-#if 0   // 260ms
-    int sl, tl, row, col;
-    bool *dp, ans = false;
 
-    if (!s || !*s) return true;
-    else if (!t || !*t) return false;
-    
-    sl = strlen(s);
-    tl = strlen(t);
-    
-    dp = calloc((sl + 1) * (tl + 1), sizeof(bool));
-    //assert(dp);
-    
-    for (col = -1; col < tl; col ++) {
-        dp[IDX(-1, col, tl)] = true;
-    }
-    /*for (row = 0; row < sl; row ++) {
-        dp[IDX(row, -1, tl)] = false;
-    }*/
-    
-    for (row = 0; row < sl; row ++) {
-        for (col = 0; col < tl; col ++) {
-            dp[IDX(row, col, tl)] = dp[IDX(row, col - 1, tl)] ||
+bool isSubsequence(char* s, char* t) {
+#if 0   // 260ms
+    int sl, tl, row, col;
+    bool *dp, ans = false;
+    
+    if (!s || !*s) return true;
+    else if (!t || !*t) return false;
+    
+    sl = strlen(s);
+    tl = strlen(t);
+    
+    dp = calloc((sl + 1) * (tl + 1), sizeof(bool));
+    //assert(dp);
+    
+    for (col = -1; col < tl; col ++) {
+        dp[IDX(-1, col, tl)] = true;
+    }
+    /*for (row = 0; row < sl; row ++) {
+        dp[IDX(row, -1, tl)] = false;
+    }*/
+    
+    for (row = 0; row < sl; row ++) {
+        for (col = 0; col < tl; col ++) {
+            dp[IDX(row, col, tl)] = dp[IDX(row, col - 1, tl)] ||
+                (s[row] == t[col] && dp[IDX(row -1, col - 1, tl)]);
+        }
+        if (!dp[IDX(row, col - 1, tl)]) goto done;
+    }
+    
+    ans = dp[IDX(sl - 1, tl - 1, tl)];
+    
+done:
+    free(dp);
+    
+    return ans;
+#else   // 12ms
+    while (*s && *t) {
+        while (*t && *t != *s) {
+            t ++;
+        }
+        if (*t) {
+            s ++;
+            t ++;
+        }
+    }
+    if (*s) return false;
+    return true;
+#endif
+}
 
 
 /*
