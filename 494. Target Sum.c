@@ -30,34 +30,35 @@ Your output answer is guaranteed to be fitted in a 32-bit integer.
 */
 
 int findTargetSumWays(int* nums, int numsSize, int S) {
-    // 1. Backtracking is pretty straightforward, refer to Expression Add Operators.
-    // 2. 0-1 knapsack dp solution:
-    int i, T = 0;
-    int *dp, s, k;
-    
-    for (i = 0; i < numsSize; i ++) {
-        T += nums[i];
-    }
-    
-    if (T < S || ((T + S) & 1)) return 0;
-    
-    s = (T + S) >> 1;
-    dp = calloc(s + 1, sizeof(int));
-    //assert(dp);
-    
-    dp[0] = 1;
-    for (i = 0; i < numsSize; i ++) {
-        for (k = s; k >= nums[i]; k --) {
-            dp[k] += dp[k - nums[i]];
-            //printf("%d,%d: %d\n", i, k, dp[k]);
-        }
-    }
-    
-    i = dp[s];
-    
-    free(dp);
-    
-    return i;
+    // 1. Backtracking is pretty straightforward, refer to Expression Add Operators.
+    // 2. 0-1 knapsack dp solution:
+    int i, T = 0;
+    int *dp, s, k, n;
+    
+    for (i = 0; i < numsSize; i ++) {
+        T += nums[i];
+    }
+    
+    if (T < S || ((T + S) & 1)) return 0;
+    
+    s = (T + S) >> 1;
+    dp = calloc(s + 1, sizeof(int));
+    //assert(dp);
+    
+    dp[0] = 1;
+    for (i = 0; i < numsSize; i ++) {
+        n = nums[i];
+        for (k = s; k >= n; k --) {
+            dp[k] += dp[k - n];
+            //printf("%d,%d: %d\n", i, k, dp[k]);
+        }
+    }
+    
+    n = dp[s];
+    
+    free(dp);
+    
+    return n;
 }
 
 
