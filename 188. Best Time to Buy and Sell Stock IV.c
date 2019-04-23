@@ -57,7 +57,9 @@ int maxProfit(int k, int* prices, int pricesSize) {
     
     for (i = 0; i < pricesSize; i ++) {
         for (j = 0; j < k; j ++) {
-            b[j]     = _max(b[j],     s[j] - prices[i]);            
+            // profit on buy is current buy or last sale minus today's price
+            b[j]     = _max(b[j],     s[j] - prices[i]);
+            // profit on sale is current sale or last buy plus today's price
             s[j + 1] = _max(s[j + 1], b[j] + prices[i]);
         }
     }
