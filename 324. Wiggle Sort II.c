@@ -49,9 +49,8 @@ void msort(int *nums, int left, int right, int m) {
             j --;
         }
     }
-    if (i > left) {
-        nums[i] = k;
-    }
+    
+    nums[i] = k;        // i is where key should be in
     
     if (i > m) msort(nums, left, i - 1, m);
     else if (i < m) msort(nums, i + 1, right, m);
@@ -59,7 +58,7 @@ void msort(int *nums, int left, int right, int m) {
 void wiggleSort(int* nums, int numsSize) {
     int i, m, k;
     
-#if 0  // this is 56ms
+#if 1  // this is 56ms
     int *tmp;
 
     qsort(nums, numsSize, sizeof(int), cmp1); // no need to sort completely
@@ -80,7 +79,7 @@ void wiggleSort(int* nums, int numsSize) {
     int r, c;
     
     m = (numsSize - 1) / 2;
-#if 0
+#if 1
     msort(nums, 0, numsSize - 1, m);
 #else
     qsort(nums, numsSize, sizeof(int), cmp1); // no need to sort completely
@@ -109,6 +108,7 @@ void wiggleSort(int* nums, int numsSize) {
     }
 #endif
 }
+
 
 /*
 Difficulty:Medium
