@@ -72,6 +72,7 @@ bool node_match(struct TreeNode *node, struct TreeNode *target, int k, int *d) {
     
     if (!node) return false;
     
+    if (d) *d = 0;
     if (k == 0 && node == target) return true;
     
     if (d) *d = -1;
@@ -112,17 +113,12 @@ int* distanceK(struct TreeNode* root, struct TreeNode* target, int K, int* retur
     struct TreeNode *node;
     
     for (i = 0; i <= K; i ++) {
-        d = 0;
         node = travel2target(root, target, i, &d);
         if (!node) continue;
-        if (i == 0) d = 0;
+        //printf("%d:%d:", node->val, d);
         if (i == K) add2res(&res, node);
-        if (i == 0 || d == 1) {
-            travel2res(&res, node->left, K - i - 1);
-        }
-        if (i == 0 || d == -1) {
-            travel2res(&res, node->right, K - i - 1);
-        }
+        if (d >= 0) travel2res(&res, node->left,  K - i - 1);
+        if (d <= 0) travel2res(&res, node->right, K - i - 1);
     }
     
     *returnSize = res.n;
