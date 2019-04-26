@@ -41,63 +41,66 @@ Credits:Special thanks to @elmirap for adding this problem and creating all test
 */
 
 typedef struct {
-    int ts[300];
-    int hit[300];
-    int first;
-    int last;
-    int counters;
+    int ts[300];
+    int hit[300];
+    int first;
+    int last;
+    int counters;
 } HitCounter;
-​
+
 /** Initialize your data structure here. */
 HitCounter* hitCounterCreate() {
-    HitCounter *obj;
-    obj = calloc(1, sizeof(HitCounter));
-    //assert(obj);
-    obj->first = -1;
-    return obj;
+    HitCounter *obj;
+    obj = calloc(1, sizeof(HitCounter));
+    //assert(obj);
+    //obj->first = -1;
+    return obj;
 }
-​
+
 void update(HitCounter *obj, int timestamp, int cnt) {
-    int i;
-    if (obj->first == -1) {
-        if (cnt == 0) return;
-        obj->first = obj->last = 0;
-        obj->ts[obj->first] = timestamp;
-        obj->hit[obj->first] = cnt;
-        obj->counters += cnt;
-    } else if (obj->ts[obj->last] == timestamp) {
-        obj->hit[obj->last] += cnt;
-        obj->counters += cnt;
-    } else {
-        i = (obj->last - obj->first + 1 + 300) % 300;
-        while (timestamp - obj->ts[obj->first] >= 300 && i > 0) {
-            obj->counters -= obj->hit[obj->first];
-            obj->first = (obj->first + 1) % 300;
-            i --;
-        }
-        obj->last = (obj->last + 1) % 300;
-        obj->ts[obj->last] = timestamp;
-        obj->hit[obj->last] = cnt;
-        obj->counters += cnt;
-    }
+    int i;
+    /*if (obj->first == -1) {
+        if (cnt == 0) return;
+        obj->first = obj->last = 0;
+        obj->ts[obj->first] = timestamp;
+        obj->hit[obj->first] = cnt;
+        obj->counters += cnt;
+    } else*/ if (obj->ts[obj->last] == timestamp) {
+        obj->hit[obj->last] += cnt;
+        obj->counters += cnt;
+    } else {
+        // number of buckets we kept so far
+        i = (obj->last - obj->first + 1 + 300) % 300;
+        // clean those buckets which are elder than 5 minutes
+        while (timestamp - obj->ts[obj->first] >= 300 && i > 0) {
+            obj->counters -= obj->hit[obj->first];
+            obj->first = (obj->first + 1) % 300;
+            i --;
+        }
+        // save the hit to the bucket in the tail
+        obj->last = (obj->last + 1) % 300;
+        obj->ts[obj->last] = timestamp;
+        obj->hit[obj->last] = cnt;
+        obj->counters += cnt;
+    }
 }
 /** Record a hit.
-        @param timestamp - The current timestamp (in seconds granularity). */
+        @param timestamp - The current timestamp (in seconds granularity). */
 void hitCounterHit(HitCounter* obj, int timestamp) {
-    update(obj, timestamp, 1);
+    update(obj, timestamp, 1);
 }
-​
+
 /** Return the number of hits in the past 5 minutes.
-        @param timestamp - The current timestamp (in seconds granularity). */
+        @param timestamp - The current timestamp (in seconds granularity). */
 int hitCounterGetHits(HitCounter* obj, int timestamp) {
-    update(obj, timestamp, 0);
-    return obj->counters;
+    update(obj, timestamp, 0);
+    return obj->counters;
 }
-​
+
 void hitCounterFree(HitCounter* obj) {
-    free(obj);
+    free(obj);
 }
-​
+
 /**
  * Your HitCounter struct will be instantiated and called as such:
  * struct HitCounter* obj = hitCounterCreate();
