@@ -24,18 +24,18 @@ Credits:Special thanks to @ syedee  for adding this problem and creating all tes
  * Note: The returned array must be malloced, assume caller calls free().
  */
 int* countBits(int num, int* returnSize) {
-    int *p, i;
-    
-    p = malloc((num + 1) * sizeof(int));
-    //assert(p);
-    *returnSize = num + 1;
-    
-    p[0] = 0;
-    for (i = 1; i <= num; i ++) {
-        p[i] = p[i & (i - 1)] + 1;
-    }
-    
-    return p;
+    int *p, i;
+    
+    p = malloc((num + 1) * sizeof(int));
+    //assert(p);
+    *returnSize = num + 1;
+    
+    p[0] = 0;
+    for (i = 1; i <= num; i ++) {
+        p[i] = p[i & (i - 1)] + 1;  // i & (i - 1) is to remove a bit from tail
+    }
+    
+    return p;
 }
 
 
