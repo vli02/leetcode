@@ -30,74 +30,102 @@ We made 5 calls to master.guess and one of them was the secret, so we pass the 
 Note:  Any solutions that attempt to circumvent the judge will result in disqualification.
 */
 
-        }
-​
-        max_group = groups[0];
-        for (j = 1; j < 7; j ++) {
-            if (max_group < groups[j]) max_group = groups[j];
-        }
-​
-        if (min_group > max_group) {
-            min_group = max_group;
-            //printf("groups: %d, %d %d, %d, %d, %d, %d\n", groups[0], groups[1], groups[2], groups[3], groups[4], groups[5], groups[6]);
-            g = i;
-        }
-    }
-​
-    return g;
-}
-​
-void findSecretWord(char** wordlist, int wordlistSize, Master* master) {
-    int match[100 * 100];
-    int i, j, k, m, g;
-    char *a, *b;
-​
-    set_t buff[2] = { 0 };
-    set_t *p1, *p2, *p3;
-    int xp[100] = { 0 };
-​
+/**
+ * *********************************************************************
+ * // This is the Master's API interface.
+ * // You should not implement it, or speculate about its implementation
+ * *********************************************************************
+ *
+ * int guess(Master *, char *word);
+ */
+typedef struct {
+    int idx[100];
+    int n;
+} set_t;
 
-    p2 = &buff[1];
-​
-    // caculate match matrix
-    for (i = 0; i < wordlistSize; i ++) {
-        a = wordlist[i];
-        for (j = i + 1; j < wordlistSize; j ++) {
-            b = wordlist[j];
-            m = 0;
-            for (k = 0; k < 6; k ++) {
-                if (a[k] == b[k]) m ++;
-            }
-            match[IDX(i, j)] = match[IDX(j, i)] = m;
-        }
-    }
-​
-    // all are possible in the beginning
-    for (i = 0; i < wordlistSize; i ++) {
-        p1->idx[p1->n ++] = i;
-    }
-​
-    while (p1->n > 0) {
-        //printf("POSSIBLE: %d\n", p1->n);
-        g = solve(p1, xp, match, wordlistSize);
-        printf("GUESS: %d, %s\n", g, wordlist[g]);
-        m = guess(master, wordlist[g]);
-        //printf("MATCH: %d\n", m);
-        if (m == 6) return;
-        // find out next possible words
-        p2->n = 0;                          // reset p2
-        for (i = 0; i < p1->n; i ++) {
-            if (match[IDX(g, p1->idx[i])] == m) {
-                p2->idx[p2->n ++] = p1->idx[i];
-            }
-        }
-        // swap p1, p2
-        p3 = p1;
-        p1 = p2;
-        p2 = p3;
-        // exclude g in future guess
-        xp[g] = 1;
-    }
+#define IDX(I, J) ((I) * 100 + J)
+
+int solve(set_t *p, int *xp, int *match, int sz) {
+    int groups[7] = { 0 };  // max match number is 6
+    int max_group, min_group;
+    int i, j, g;
+
+    if (p->n <= 2) return p->idx[0];
+
+    g = -1; min_group = 1000;
+    for (i = 0; i < sz; i ++) {
+        if (xp[i]) continue;
+        memset(groups, 0, sizeof(int) * 7);
+        for (j = 0; j < p->n; j ++) {
+            if (i != p->idx[j]) groups[match[IDX(i, p->idx[j])]] ++;
+        }
+
+        max_group = groups[0];
+        for (j = 1; j < 7; j ++) {
+            if (max_group < groups[j]) max_group = groups[j];
+        }
+
+        if (min_group > max_group) {
+            min_group = max_group;
+            //printf("groups: %d, %d %d, %d, %d, %d, %d\n", groups[0], groups[1], groups[2], groups[3], groups[4], groups[5], groups[6]);
+            g = i;
+        }
+    }
+
+    return g;
+}
+
+void findSecretWord(char** wordlist, int wordlistSize, Master* master) {
+    int match[100 * 100];
+    int i, j, k, m, g;
+    char *a, *b;
+
+    set_t buff[2] = { 0 };
+    set_t *p1, *p2, *p3;
+    int xp[100] = { 0 };
+
+    p1 = &buff[0];
+    p2 = &buff[1];
+
+    // caculate match matrix
+    for (i = 0; i < wordlistSize; i ++) {
+        a = wordlist[i];
+        for (j = i + 1; j < wordlistSize; j ++) {
+            b = wordlist[j];
+            m = 0;
+            for (k = 0; k < 6; k ++) {
+                if (a[k] == b[k]) m ++;
+            }
+            match[IDX(i, j)] = match[IDX(j, i)] = m;
+        }
+    }
+
+    // all are possible in the beginning
+    for (i = 0; i < wordlistSize; i ++) {
+        p1->idx[p1->n ++] = i;
+    }
+
+    while (p1->n > 0) {
+        //printf("POSSIBLE: %d\n", p1->n);
+        g = solve(p1, xp, match, wordlistSize);
+        printf("GUESS: %d, %s\n", g, wordlist[g]);
+        m = guess(master, wordlist[g]);
+        //printf("MATCH: %d\n", m);
+        if (m == 6) return;
+        // find out next possible words
+        p2->n = 0;                          // reset p2
+        for (i = 0; i < p1->n; i ++) {
+            if (match[IDX(g, p1->idx[i])] == m) {
+                p2->idx[p2->n ++] = p1->idx[i];
+            }
+        }
+        // swap p1, p2
+        p3 = p1;
+        p1 = p2;
+        p2 = p3;
+        // exclude g in future guess
+        xp[g] = 1;
+    }
 }
 
 
