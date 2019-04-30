@@ -39,48 +39,47 @@ Note:
 /**
  * Definition for a binary tree node.
  * struct TreeNode {
- *     int val;
- *     struct TreeNode *left;
- *     struct TreeNode *right;
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
  * };
  */
 typedef struct {
-    int dep;
-    bool flag;
+    int dep;
+    bool flag;
 } set_t;
 bool verify_and_set(set_t *set, int d) {
-    if (set->dep == -1) {    // first time verifying a depth
-        set->dep = d;
-        return true;
-    }
-    // assert(d <= set->dep);
-    if (d == set->dep - 1) {
-        if (!set->flag) set->flag = true;
-        return true;
-    } else if (d == set->dep && !set->flag) {
-        return true;
-    }
-    return false;
+    if (set->dep == -1) {    // first time verifying a depth
+        set->dep = d;
+        return true;
+    }
+    // assert(d <= set->dep);
+    if (d == set->dep - 1) {
+        if (!set->flag) set->flag = true;
+        return true;
+    } else if (d == set->dep && !set->flag) {
+        return true;
+    }
+    return false;
 }
 bool traversal(struct TreeNode *node, set_t *set, int d) {
-    if (set->dep != -1 && d > set->dep) return false;
-    
-    if (!node->left) {
-        if (node->right) return false;
-        // this is a left node
-        if (verify_and_set(set, d) == false) return false;
-    } else if (!traversal(node->left, set, d + 1)) return false;
-    else if (!node->right) {
-        if (!set->flag) set->flag = true;
-        else return false;
-    } else if (!traversal(node->right, set, d + 1)) return false;
-
-    return true;
+    if (set->dep != -1 && d > set->dep) return false;
+    
+    if (!node->left) {
+        if (node->right) return false;
+        // this is a left node
+        if (verify_and_set(set, d) == false) return false;
+    } else if (!traversal(node->left, set, d + 1)) return false;
+    else if (!node->right) {
+        if (verify_and_set(set, d) == false) return false;
+    } else if (!traversal(node->right, set, d + 1)) return false;
+    
+    return true;
 }
 bool isCompleteTree(struct TreeNode* root) {
-    set_t set = { -1, false };
-    if (!root) return true;
-    return traversal(root, &set, 0);
+    set_t set = { -1, false };
+    if (!root) return true;
+    return traversal(root, &set, 0);
 }
 
 
