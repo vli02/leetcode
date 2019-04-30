@@ -41,6 +41,7 @@ Functions could be called recursively, and will always end.
  */
 typedef struct {
     int *p;
+    int *o; // offset
     int sp;
     int sz;
 } s_t;
@@ -50,18 +51,24 @@ void push(s_t *stack, int tx) {
         stack->sz *= 2;
         stack->p = realloc(stack->p, stack->sz * sizeof(int));
         //assert(stack->p);
+        stack->o = realloc(stack->o, stack->sz * sizeof(int));
+        //assert(stack->o);
     }
+    stack->o[stack->sp   ] = 0;
     stack->p[stack->sp ++] = tx;
 }
-    
+
 int pop(s_t *stack) {
-    return stack->p[-- stack->sp];
+    -- stack->sp;
+    if (stack->sp > 0) {
+        stack->o[stack->sp - 1] += stack->o[stack->sp];
+    }
+    return stack->p[stack->sp] + stack->o[stack->sp];
 }
-    
+
 void update(s_t *stack, int tx) {
-    int i;
-    for (i = 0; i < stack->sp; i ++) {
-        stack->p[i] += tx;
+    if (stack->sp > 0) {
+        stack->o[stack->sp - 1] += tx;
     }
 }
 
@@ -92,6 +99,8 @@ int* exclusiveTime(int n, char** logs, int logsSize, int* returnSize) {
     stack.sp = 0;
     stack.p = malloc(stack.sz * sizeof(int));
     //assert(stack.p);
+    stack.o = malloc(stack.sz * sizeof(int));
+    //assert(stack.o);
     
     res = calloc(n, sizeof(int));
     //assert(t);
@@ -110,6 +119,7 @@ int* exclusiveTime(int n, char** logs, int logsSize, int* returnSize) {
     }
     
     free(stack.p);
+    free(stack.o);
     
     return res;
 }
