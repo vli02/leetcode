@@ -95,7 +95,7 @@ struct TreeNode *travel2target(struct TreeNode *node, struct TreeNode *target, i
     return travel2target(node->right, target, k, d);
 }
 
-void travel2res(res_t *res, struct TreeNode *node, int k) {
+void travel2peer(res_t *res, struct TreeNode *node, int k) {
     if (!node) return;
     
     if (k == 0) {
@@ -103,8 +103,8 @@ void travel2res(res_t *res, struct TreeNode *node, int k) {
         return;
     }
     
-    travel2res(res, node->left, k - 1);
-    travel2res(res, node->right, k - 1);
+    travel2peer(res, node->left, k - 1);
+    travel2peer(res, node->right, k - 1);
 }
 
 int* distanceK(struct TreeNode* root, struct TreeNode* target, int K, int* returnSize) {
@@ -117,8 +117,8 @@ int* distanceK(struct TreeNode* root, struct TreeNode* target, int K, int* retur
         if (!node) continue;
         //printf("%d:%d:", node->val, d);
         if (i == K) add2res(&res, node);
-        if (d >= 0) travel2res(&res, node->left,  K - i - 1);
-        if (d <= 0) travel2res(&res, node->right, K - i - 1);
+        if (d >= 0) travel2peer(&res, node->left,  K - i - 1);
+        if (d <= 0) travel2peer(&res, node->right, K - i - 1);
     }
     
     *returnSize = res.n;
