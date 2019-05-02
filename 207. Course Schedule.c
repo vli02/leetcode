@@ -33,54 +33,54 @@ Topological sort could also be done via BFS.
 */
 
 int has_cycle(int *buff, int n, int sz, int *visited) {
-    int i, *node;
-    
-    if (visited[n] == -1) return 0;
-    if (visited[n] == 1) return 1;
-    
-    visited[n] = 1;
-    
-    node = &buff[n * sz];
-    for (i = 0; i < sz; i ++) {
-        if (node[i] != 0 && has_cycle(buff, node[i], sz, visited)) {
-            return true;
-        }
-    }
-    
-    visited[n] = -1;
-    
-    return false;
+    int i, *node;
+    
+    if (visited[n] == -1) return 0;
+    if (visited[n] == 1) return 1;
+    
+    visited[n] = 1;
+    
+    node = &buff[n * sz];
+    for (i = 0; i < sz; i ++) {
+        if (node[i] != 0 && has_cycle(buff, node[i], sz, visited)) {
+            return true;
+        }
+    }
+    
+    visited[n] = -1;
+    
+    return false;
 }
 bool canFinish(int numCourses, int** prerequisites, int prerequisitesRowSize, int prerequisitesColSize) {
-    int ret = true;
-    int *buff, *root, *node;
-    int i, a, b;
-    int *visited;
-    
-    buff = calloc((numCourses + 1) * numCourses, sizeof(int)); // each node with all possible neighbors
-    visited = calloc((numCourses + 1), sizeof(int));
-    //assert(buff && visited);
-    
-    root = &buff[0];  // root node has neighbors of all
-    for (i = 0; i < numCourses; i ++) {
-        root[i] = i + 1;
-    }
-    
-    for (i = 0; i < prerequisitesRowSize; i ++) {
-        a = prerequisites[i][1] + 1;
-        b = prerequisites[i][0];
-        node = &buff[a * numCourses];
-        node[b] = b + 1;
-    }
-    
-    if (has_cycle(buff, 0, numCourses, visited)) {
-        ret = false;
-    }
-    
-    free(buff);
-    free(visited);
-​
-    return ret;
+    int ret = true;
+    int *buff, *root, *node;
+    int i, a, b;
+    int *visited;
+    
+    buff = calloc((numCourses + 1) * numCourses, sizeof(int)); // each node with all possible neighbors
+    visited = calloc((numCourses + 1), sizeof(int));
+    //assert(buff && visited);
+    
+    root = &buff[0];  // root node has neighbors of all
+    for (i = 0; i < numCourses; i ++) {
+        root[i] = i + 1;
+    }
+    
+    for (i = 0; i < prerequisitesRowSize; i ++) {
+        a = prerequisites[i][1] + 1;
+        b = prerequisites[i][0];
+        node = &buff[a * numCourses];
+        node[b] = b + 1;
+    }
+    
+    if (has_cycle(buff, 0, numCourses, visited)) {
+        ret = false;
+    }
+    
+    free(buff);
+    free(visited);
+
+    return ret;
 }
 
 

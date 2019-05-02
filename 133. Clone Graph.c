@@ -42,62 +42,62 @@ Visually, the graph looks like the following:
 /**
  * #define NEIGHBORS_MAX_SIZE 100
  * struct UndirectedGraphNode {
- *     int label;
- *     struct UndirectedGraphNode *neighbors[NEIGHBORS_MAX_SIZE];
- *     int neighborsCount;
+ *     int label;
+ *     struct UndirectedGraphNode *neighbors[NEIGHBORS_MAX_SIZE];
+ *     int neighborsCount;
  * };
  */
 struct UndirectedGraphNode *copy1node(struct UndirectedGraphNode *graph, 
-                                      struct UndirectedGraphNode ***srcpool, 
-                                      struct UndirectedGraphNode ***dstpool, 
-                                      int *sp, int *sz) {
-    struct UndirectedGraphNode *node;
-    int i = 0;
-    
-    if (!graph) return NULL;
-    
-    while (i < *sp && (*srcpool)[i] != graph) {
-        i ++;
-    }
-    if (i == *sp) {
-        node = malloc(sizeof(struct UndirectedGraphNode));
-        //assert(node);
-        node->label = graph->label;
-        if (*sp == *sz) {
-            *sz = *sz * 2;
-            *srcpool = realloc(*srcpool, *sz * sizeof(struct UndirectedGraphNode *));
-            *dstpool = realloc(*dstpool, *sz * sizeof(struct UndirectedGraphNode *));
-            //assert(*srcpool && *dstpool && *stspool);
-        }
-        (*srcpool)[*sp] = graph;
-        (*dstpool)[*sp] = node;
-        (*sp) += 1;
-        i = 0;
-        while (i < graph->neighborsCount) {
-            node->neighbors[i] = copy1node(graph->neighbors[i], srcpool, dstpool, sp, sz);
-            i ++;
-        }
-        node->neighborsCount = graph->neighborsCount;
-    } else {
-        node = (*dstpool)[i];
-    }
-    
-    return node;
+                                      struct UndirectedGraphNode ***srcpool, 
+                                      struct UndirectedGraphNode ***dstpool, 
+                                      int *sp, int *sz) {
+    struct UndirectedGraphNode *node;
+    int i = 0;
+    
+    if (!graph) return NULL;
+    
+    while (i < *sp && (*srcpool)[i] != graph) {
+        i ++;
+    }
+    if (i == *sp) {
+        node = malloc(sizeof(struct UndirectedGraphNode));
+        //assert(node);
+        node->label = graph->label;
+        if (*sp == *sz) {
+            *sz = *sz * 2;
+            *srcpool = realloc(*srcpool, *sz * sizeof(struct UndirectedGraphNode *));
+            *dstpool = realloc(*dstpool, *sz * sizeof(struct UndirectedGraphNode *));
+            //assert(*srcpool && *dstpool && *stspool);
+        }
+        (*srcpool)[*sp] = graph;
+        (*dstpool)[*sp] = node;
+        (*sp) += 1;
+        i = 0;
+        while (i < graph->neighborsCount) {
+            node->neighbors[i] = copy1node(graph->neighbors[i], srcpool, dstpool, sp, sz);
+            i ++;
+        }
+        node->neighborsCount = graph->neighborsCount;
+    } else {
+        node = (*dstpool)[i];
+    }
+    
+    return node;
 }
-​
+
 struct UndirectedGraphNode *cloneGraph(struct UndirectedGraphNode *graph) {
-    struct UndirectedGraphNode **srcpool, **dstpool, *node;
-    int sp = 0, sz = 100;
-    
-    srcpool = malloc(sz * sizeof(struct UndirectedGraphNode *));
-    dstpool = malloc(sz * sizeof(struct UndirectedGraphNode *));
-    //assert(srcpool && dstpool && stspool);
-    
-    node = copy1node(graph, &srcpool, &dstpool, &sp, &sz);
-    
-    free(srcpool); free(dstpool);
-    
-    return node;
+    struct UndirectedGraphNode **srcpool, **dstpool, *node;
+    int sp = 0, sz = 100;
+    
+    srcpool = malloc(sz * sizeof(struct UndirectedGraphNode *));
+    dstpool = malloc(sz * sizeof(struct UndirectedGraphNode *));
+    //assert(srcpool && dstpool && stspool);
+    
+    node = copy1node(graph, &srcpool, &dstpool, &sp, &sz);
+    
+    free(srcpool); free(dstpool);
+    
+    return node;
 }
 
 
