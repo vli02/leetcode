@@ -39,92 +39,92 @@ Topological sort could also be done via BFS.
  * Note: The returned array must be malloced, assume caller calls free().
  */
 int has_cycle(int *buff, int n, int sz, int *visited) {
-    int i, *node;
-    
-    if (visited[n] == -1) return 0;
-    if (visited[n] == 1) return 1;
-    
-    visited[n] = 1;
-    
-    node = &buff[n * sz];
-    for (i = 0; i < sz; i ++) {
-        if (node[i] != 0 && has_cycle(buff, node[i], sz, visited)) {
-            return true;
-        }
-    }
-    
-    visited[n] = -1;
-    
-    return false;
+    int i, *node;
+    
+    if (visited[n] == -1) return 0;
+    if (visited[n] == 1) return 1;
+    
+    visited[n] = 1;
+    
+    node = &buff[n * sz];
+    for (i = 0; i < sz; i ++) {
+        if (node[i] != 0 && has_cycle(buff, node[i], sz, visited)) {
+            return true;
+        }
+    }
+    
+    visited[n] = -1;
+    
+    return false;
 }
 void dfs(int *buff, int n, int sz, int *indegree, int *visited, int *courses, int *k) {
-    int i, *node;
-    
-    visited[n] = 3;
-    
-    courses[(*k) ++] = n - 1;
-    
-    node = &buff[n * sz];
-    for (i = 0; i < sz; i ++) {
-        n = node[i];
-        if (n && visited[n] != 3) {
-            indegree[n] --;
-            if (indegree[n] == 0) {
-                dfs(buff, n, sz, indegree, visited, courses, k);
-            }
-        }
-    }
+    int i, *node;
+    
+    visited[n] = 3;
+    
+    courses[(*k) ++] = n - 1;
+    
+    node = &buff[n * sz];
+    for (i = 0; i < sz; i ++) {
+        n = node[i];
+        if (n && visited[n] != 3) {
+            indegree[n] --;
+            if (indegree[n] == 0) {
+                dfs(buff, n, sz, indegree, visited, courses, k);
+            }
+        }
+    }
 }
 int* findOrder(int numCourses, int** prerequisites, int prerequisitesRowSize, int prerequisitesColSize, int* returnSize) {
-    int *buff, *root, *node_a;
-    int i, n, k, a, b;
-    int *visited;
-    int *indegree;
-    int *courses;
-    
-    buff = calloc((numCourses + 1) * numCourses, sizeof(int)); // each node with all possible neighbors
-    visited = calloc((numCourses + 1), sizeof(int));
-    indegree = calloc((numCourses + 1), sizeof(int));
-    courses  = calloc(numCourses, sizeof(int));
-    //assert(buff && visited && indegree && courses);
-    
-    root = &buff[0];  // root node has neighbors of all
-    for (i = 0; i < numCourses; i ++) {
-        root[i] = i + 1;
-    }
-    
-    for (i = 0; i < prerequisitesRowSize; i ++) {
-        a = prerequisites[i][1];
-        b = prerequisites[i][0];
-        node_a = &buff[(a + 1) * numCourses];
-        node_a[b] = (b + 1);    // node a has neighbor b which has id b + 1
-        indegree[(b + 1)] ++;
-    }
-    
-    k = 0;
-    
-    //if (has_cycle(buff, 0, numCourses, visited)) {
-    //    goto done;
-    //}
-    
-    // topological sort using dfs
-    for (i = 0; i < numCourses; i ++) {
-        n = root[i];
-        if (indegree[n] == 0 && visited[n] != 3) {
-            dfs(buff, n, numCourses, indegree, visited, courses, &k);
-        }
-    }
-    
-    if (k != numCourses) k = 0;
-    
+    int *buff, *root, *node_a;
+    int i, n, k, a, b;
+    int *visited;
+    int *indegree;
+    int *courses;
+    
+    buff = calloc((numCourses + 1) * numCourses, sizeof(int)); // each node with all possible neighbors
+    visited = calloc((numCourses + 1), sizeof(int));
+    indegree = calloc((numCourses + 1), sizeof(int));
+    courses  = calloc(numCourses, sizeof(int));
+    //assert(buff && visited && indegree && courses);
+    
+    root = &buff[0];  // root node has neighbors of all
+    for (i = 0; i < numCourses; i ++) {
+        root[i] = i + 1;
+    }
+    
+    for (i = 0; i < prerequisitesRowSize; i ++) {
+        a = prerequisites[i][1];
+        b = prerequisites[i][0];
+        node_a = &buff[(a + 1) * numCourses];
+        node_a[b] = (b + 1);    // node a has neighbor b which has id b + 1
+        indegree[(b + 1)] ++;
+    }
+    
+    k = 0;
+    
+    //if (has_cycle(buff, 0, numCourses, visited)) {
+    //    goto done;
+    //}
+    
+    // topological sort using dfs
+    for (i = 0; i < numCourses; i ++) {
+        n = root[i];
+        if (indegree[n] == 0 && visited[n] != 3) {
+            dfs(buff, n, numCourses, indegree, visited, courses, &k);
+        }
+    }
+    
+    if (k != numCourses) k = 0;
+    
 done:
-    free(buff);
-    free(visited);
-    free(indegree);
-​
-    *returnSize = k;
-    
-    return courses;
+    free(buff);
+    free(visited);
+    free(indegree);
+
+    *returnSize = k;
+    
+    return courses;
 }
 
 
