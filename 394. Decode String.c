@@ -19,99 +19,94 @@ s = "2[abc]3[cd]ef", return "abcabccdcdcdef".
 */
 
 struct node {
-    char *leading_string;
-    int leading_len;
-    int repeat;
+    char *leading_string;
+    int leading_len;
+    int repeat;
 };
-​
+
 char* decodeString(char* s) {
-    struct node stack[100], *p;
-    int sp = 0;
-    
-    int n;
-    
-    char *buff = NULL;
-    int sz, len;
-    
-    char *newbuff = NULL;
-    int newsz, newlen;
-    
-    char *tmp;
-​
-    n = 0;
-    p = &stack[sp];
-    while (*s) {
-        if (*s == '[') {
-            p->leading_string = buff;
-            p->leading_len = len;
-            buff = NULL;
-            sz = len = 0;
-            
-            p->repeat = n;
-            n = 0;
-            
-            sp ++;
-            p = &stack[sp];
-        } else if (*s == ']') {
-            // pop and expand
-            p = &stack[-- sp];
-            
-            newlen = p->leading_len + p->repeat * len;
-            newsz = newlen + 10;
-            newbuff = malloc(newsz * sizeof(char));
-            //assert(newbuff);
-            if (p->leading_string) {
-                sprintf(newbuff, "%s", p->leading_string);
-                free(p->leading_string);
-            }
-            tmp = newbuff + p->leading_len;
-            //printf("repeat: %d, buff: %s, len: %d\n", p->repeat, buff, len);
-            while (p->repeat) {
-                strcat(tmp, buff);
-                tmp += len;
-                p->repeat --;
-            }
-            newbuff[newlen] = 0; // null terminated
-            //printf("newbuff: %s\n", newbuff);
-            sz = newsz;
-            len = newlen;
-            free(buff);
-            buff = newbuff;
-        } else if (*s >= '0' && *s <= '9') {
-            n = n * 10 + (*s) - '0';
-        } else {
-            if (!buff) {
-                sz = 10;
-                buff = malloc(sz * sizeof(char));
-                //assert(buff);
-                len = 0;
-            }
-            buff[len ++] = *s;
-            if (len == sz) {
-                sz += 10;
-                buff = realloc(buff, sizeof(char));
-                //assert(buff);
-            }
-            buff[len] = 0; // null terminated
-        }
-        s ++;
-    }
-    if (!buff) buff = calloc(1, sizeof(char));
-    //assert(buff);
-    return buff;
+    struct node stack[100], *p;
+    int sp = 0;
+    
+    int n;
+    
+    char *buff;
+    int sz, len;
+    
+    char *newbuff = NULL;
+    int newsz, newlen;
+    
+    char *tmp;
+    
+    buff = NULL;
+    sz = len = 0;
+    n = 0;
+    while (*s) {
+        if (*s == '[') {
+            p = &stack[sp ++];  // push and save
+            
+            p->leading_string = buff;
+            p->leading_len = len;
+            buff = NULL;
+            sz = len = 0;
+            
+            p->repeat = n;
+            n = 0;            
+        } else if (*s == ']') {
+            p = &stack[-- sp];  // pop and expand
+            
+            newlen = p->leading_len + p->repeat * len;
+            newsz = newlen + 10;
+            newbuff = malloc(newsz * sizeof(char));
+            //assert(newbuff);
+            newbuff[0] = 0;
+            if (p->leading_string) {
+                sprintf(newbuff, "%s", p->leading_string);
+                free(p->leading_string);
+            }
+            tmp = newbuff + p->leading_len;
+            //printf("repeat: %d, buff: %s, len: %d\n", p->repeat, buff, len);
+            while (p->repeat) {
+                strcat(tmp, buff);
+                tmp += len;
+                p->repeat --;
+            }
+            newbuff[newlen] = 0; // null terminated
+            //printf("newbuff: %s\n", newbuff);
+            free(buff);
+            sz = newsz;
+            len = newlen;
+            buff = newbuff;
+        } else if (*s >= '0' && *s <= '9') {
+            n = n * 10 + (*s) - '0';
+        } else {
+            if (len == sz) {
+                if (sz == 0) sz = 10;
+                else sz *= 2;
+                buff = realloc(buff, sz * sizeof(char));
+                //assert(buff);
+            }
+            buff[len ++] = *s;
+            buff[len] = 0; // null terminated
+        }
+        s ++;
+    }
+    if (!buff) buff = calloc(1, sizeof(char));
+    //assert(buff);
+    return buff;
 }
-​
+
 // a very typical yacc grammar:
 /*
 decoded_string:
-      letters
-    | pattern
-    | decoded_string letters
-    | decoded_string pattern
-    ;
+      letters
+    | pattern
+    | decoded_string letters
+    | decoded_string pattern
+    ;
 pattern:
-      number '[' decoded_string ']'
-    ;
+      number '[' decoded_string ']'
+    ;
 */
 
 
