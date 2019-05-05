@@ -14,42 +14,42 @@ Credits:Special thanks to @mithmatt for adding this problem and creating all tes
 */
 
 int comp(const void *a, const void *b) {
-    return *(int *)b - *(int *)a;
+    return *(int *)b - *(int *)a;
 }
 int msort(int *nums, int left, int right, int m) {
-    int i, j, k;
-    i = left;
-    j = right;
-    k = nums[i];
-    while (i < j) {
-        while (i < j && nums[j] <= k) {
-            j --;
-        }
-        if (i < j) {
-            nums[i] = nums[j];
-            i ++;
-        }
-        while (i < j && nums[i] >= k) {
-            i ++;
-        }
-        if (i < j) {
-            nums[j] = nums[i];
-            j --;
-        }
-    }
-    if (i > left) {
-        nums[i] = k;
-    }
-    if (i == m) return nums[i];
-    else if (i < m) return msort(nums, i + 1, right, m);
-    else return msort(nums, left, i - 1, m);
+    int i, j, k;
+    i = left;
+    j = right;
+    k = nums[i];
+    while (i < j) {
+        while (i < j && nums[j] <= k) {
+            j --;
+        }
+        if (i < j) {
+            nums[i] = nums[j];
+            i ++;
+        }
+        while (i < j && nums[i] >= k) {
+            i ++;
+        }
+        if (i < j) {
+            nums[j] = nums[i];
+            j --;
+        }
+    }
+    if (i > left) {
+        nums[i] = k;
+    }
+    if (i == m) return nums[i];
+    else if (i < m) return msort(nums, i + 1, right, m);
+    else return msort(nums, left, i - 1, m);
 }
 int findKthLargest(int* nums, int numsSize, int k) {
-#if 0  // 6ms
-    qsort(nums, numsSize, sizeof(int), comp);
-    return nums[k - 1];
-#else  // 13ms
-    return msort(nums, 0, numsSize - 1, k - 1);
+#if 0  // 6ms
+    qsort(nums, numsSize, sizeof(int), comp);
+    return nums[k - 1];
+#else  // 13ms
+    return msort(nums, 0, numsSize - 1, k - 1);
 #endif
 }
 
