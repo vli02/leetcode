@@ -49,38 +49,36 @@ Note:
 */
 
 int numMusicPlaylists(int N, int L, int K){
-    long *dp;
-    int i, j, x;
-    
-    // dp[i][j]: number of possible answers on listening to i with j songs
-    // then we want to get dp[L][N]
-    dp = calloc((L + 1) * (N + 1), sizeof(*dp));
-    //assert(dp);
+    long *dp;
+    int i, j, x;
+    
+    // dp[i][j]: number of possible answers on listening to i with j songs
+    // then we want to get dp[L][N]
+    dp = calloc((L + 1) * (N + 1), sizeof(*dp));
+    //assert(dp);
 #define IDX(I, J) ((I) * (N + 1) + (J))
-    
-    dp[IDX(0, 0)] = 1;
-
-    for (i = 1; i <= L; i ++) {
-        for (j = 1; j <= N; j ++) {
-            x = N - j + 1;      // number of songs not being selected
-            dp[IDX(i, j)] += dp[IDX(i - 1, j - 1)] * x; // choose a new song
-            
-            x = j - K;          // number of played songs can be re-selected
-            if (x > 0) {
-                dp[IDX(i, j)] += dp[IDX(i - 1, j)] * x; // choose a played songs
-            }
-            dp[IDX(i, j)] %= 1000000007;
-        }
-    }
-    
-    i = dp[IDX(L, N)];
-    
-    free(dp);
-    
-    return i;
+    
+    dp[IDX(0, 0)] = 1;
+    
+    for (i = 1; i <= L; i ++) {
+        for (j = 1; j <= N; j ++) {
+            x = N - j + 1;      // number of songs not being selected (including current song j)
+            dp[IDX(i, j)] += dp[IDX(i - 1, j - 1)] * x; // choose a new song
+            
+            x = j - K;          // number of played songs (including song j) can be re-selected
+            if (x > 0) {
+                dp[IDX(i, j)] += dp[IDX(i - 1, j)] * x; // choose a played songs
+            }
+            dp[IDX(i, j)] %= 1000000007;
+        }
+    }
+    
+    i = dp[IDX(L, N)];
+    
+    free(dp);
+    
+    return i;
 }
-​
-​
 
 
 /*
