@@ -53,7 +53,7 @@ int numMusicPlaylists(int N, int L, int K){
     int i, j, x;
     
     // dp[i][j]: number of possible answers on listening to i with j songs
-    // then we want to get dp[N][L]
+    // then we want to get dp[L][N]
     dp = calloc((L + 1) * (N + 1), sizeof(*dp));
     //assert(dp);
 #define IDX(I, J) ((I) * (N + 1) + (J))
