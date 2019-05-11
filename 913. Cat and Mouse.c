@@ -84,15 +84,13 @@ typedef struct {
 node_t *get_node(node_t *nodes, int m, int c, int t) {
     node_t *node = &nodes[IDX(m, c, t)];
     
-    if (IS_MOUSE_WIN(node) || IS_CAT_WIN(node)) return NULL;    // already determined, no need it
-    
     node->m = m;
     node->c = c;
     node->t = t;
     
     return node;
 }
-bool mouse_win_on_all_children(node_t *nodes, node_t *node, int **graph, int *colsz) {
+bool mouse_win_on_all_children(node_t *node, node_t *nodes, int **graph, int *colsz) {
     int i, j, k;
     node_t *child;
     
@@ -100,20 +98,20 @@ bool mouse_win_on_all_children(node_t *nodes, node_t *node, int **graph, int *co
     for (j = 0; j < colsz[i]; j ++) {
         k = graph[i][j];
         if (k == 0) continue;   // cat cannot go to position 0
-        child = get_node(nodes, MOUSE_POSITION(node), k, CAT_MOVE);
-        if (!child || IS_CAT_WIN(child)) return false;  // not determined or cat wins
+        child = get_node(nodes, MOUSE_POSITION(node), k, MOUSE_MOVE);
+        if (!IS_MOUSE_WIN(child)) return false;  // not determined or cat wins
     }
     return true;    // mouse wins on all children
 }
-bool cat_win_on_all_children(node_t *nodes, node_t *node, int **graph, int *colsz) {
+bool cat_win_on_all_children(node_t *node, node_t *nodes, int **graph, int *colsz) {
     int i, j, k;
     node_t *child;
     
     i = MOUSE_POSITION(node);
     for (j = 0; j < colsz[i]; j ++) {
         k = graph[i][j];
-        child = get_node(nodes, k, CAT_POSITION(node), MOUSE_MOVE);
-        if (!child || IS_MOUSE_WIN(child)) return false;
+        child = get_node(nodes, k, CAT_POSITION(node), CAT_MOVE);
+        if (!IS_CAT_WIN(child)) return false;
     }
     return true;
 }
@@ -154,13 +152,12 @@ int catMouseGame(int** graph, int graphSize, int* graphColSize){
             if (IS_MOUSE_MOVE(node)) {      // current node is mouse going to move
                 j = CAT_POSITION(node);     // parent must be cat was moving
                 for (k = 0; k < graphColSize[j]; k ++) {
-                    if (graph[j][k] == 0) continue; // cat cannot go to position 0
+                    if (graph[j][k] == 0) continue; // cat cannot be at position 0
                     parent = get_node(nodes, MOUSE_POSITION(node), graph[j][k], CAT_MOVE);
-                    if (!parent) continue;
-                    if (IS_CAT_WIN(node)) {        // if cat wins at present
-                        SET_CAT_WIN(parent);    // parent must win because:
-                                                //  parent is cat to move so the cat can just move to present
-                    } else if (mouse_win_on_all_children(nodes, parent, graph, graphColSize)) {
+                    if (IS_MOUSE_WIN(parent) || IS_CAT_WIN(parent)) continue;    // already determined
+                    if (IS_CAT_WIN(node)) {     // if cat wins at present, parent must win because:
+                        SET_CAT_WIN(parent);    // parent is cat to move so the cat can just move to here
+                    } else if (mouse_win_on_all_children(parent, nodes, graph, graphColSize)) {
                         SET_MOUSE_WIN(parent);
                     } else {
                         parent = NULL;      // unable to determine it, forget about it at this moment.
@@ -171,10 +168,10 @@ int catMouseGame(int** graph, int graphSize, int* graphColSize){
                 j = MOUSE_POSITION(node);   // parent must be mouse was moving
                 for (k = 0; k < graphColSize[j]; k ++) {
                     parent = get_node(nodes, graph[j][k], CAT_POSITION(node), MOUSE_MOVE);
-                    if (!parent) continue;
+                    if (IS_MOUSE_WIN(parent) || IS_CAT_WIN(parent)) continue;    // already determined
                     if (IS_MOUSE_WIN(node)) {
                         SET_MOUSE_WIN(parent);
-                    } else if (cat_win_on_all_children(nodes, parent, graph, graphColSize)) {
+                    } else if (cat_win_on_all_children(parent, nodes, graph, graphColSize)) {
                         SET_CAT_WIN(parent);
                     } else {
                         parent = NULL;
