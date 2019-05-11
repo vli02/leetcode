@@ -64,24 +64,18 @@ int cmp(const void *a, const void *b) {
     if (e1->ratio > e2->ratio) return 1;
     return 0;
 }
-int cmp2(const void *a, const void *b) {
-    int x = *(int *)a;
-    int y = *(int *)b;
-    if (x < y) return -1;
-    if (x > y) return 1;
-    return 0;
-}
 double mincostToHireWorkers(int* quality, int qualitySize, int* wage, int wageSize, int K) {
     e_t e[10000];
-    int heap[10000], hsz, i;
+    int heap[10000], hsz, i, j, m, x;
     long total_quality;
-    double current_ratio, ans = 0, w;
+    double current_ratio, ans = 0, d;
     
     for (i = 0; i < qualitySize; i ++) {
         e[i].ratio = (double)wage[i] / quality[i];
         e[i].quality = quality[i];
     }
     
+    // sort by ratio in acesending order
     qsort(e, qualitySize, sizeof(e_t), cmp);
     
     hsz = 0;
@@ -92,12 +86,19 @@ double mincostToHireWorkers(int* quality, int qualitySize, int* wage, int wageSi
         total_quality += e[i].quality;
         current_ratio  = e[i].ratio;
         if (hsz > K) {                          // push out the largest quality from heap
-            qsort(heap, hsz, sizeof(int), cmp2);    // TODO: use real heap to optimize
-            total_quality -= heap[-- hsz];
+            x = 0; m = heap[0];                 // TODO: use real heap to optimize
+            for (j = 1; j < hsz; j ++) {
+                if (m < heap[j]) {
+                    m = heap[j];
+                    x = j;
+                }
+            }
+            heap[x] = heap[-- hsz];
+            total_quality -= m;
         }
         if (hsz == K) {
-            w = total_quality * current_ratio;
-            if (ans == 0 || ans > w) ans = w;
+            d = total_quality * current_ratio;
+            if (ans == 0 || ans > d) ans = d;
         }
     }
     
