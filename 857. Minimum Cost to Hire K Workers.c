@@ -66,7 +66,7 @@ int cmp(const void *a, const void *b) {
 }
 double mincostToHireWorkers(int* quality, int qualitySize, int* wage, int wageSize, int K) {
     e_t e[10000];
-    int heap[10000], hsz, i, j, m, x;
+    int heap[10000], hsz, i, j, m;
     long total_quality;
     double current_ratio, ans = 0, d;
     
@@ -86,15 +86,11 @@ double mincostToHireWorkers(int* quality, int qualitySize, int* wage, int wageSi
         total_quality += e[i].quality;
         current_ratio  = e[i].ratio;
         if (hsz > K) {                          // push out the largest quality from heap
-            x = 0; m = heap[0];                 // TODO: use real heap to optimize
-            for (j = 1; j < hsz; j ++) {
-                if (m < heap[j]) {
-                    m = heap[j];
-                    x = j;
-                }
+            for (m = 0, j = 1; j < hsz; j ++) { // TODO: use real heap to optimize
+                if (heap[m] < heap[j]) m = j;
             }
-            heap[x] = heap[-- hsz];
-            total_quality -= m;
+            total_quality -= heap[m];
+            heap[m] = heap[-- hsz];
         }
         if (hsz == K) {
             d = total_quality * current_ratio;
