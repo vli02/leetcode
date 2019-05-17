@@ -10,48 +10,39 @@ In a complete binary tree every level, except possibly the last, is completely f
 /**
  * Definition for a binary tree node.
  * struct TreeNode {
- *     int val;
- *     struct TreeNode *left;
- *     struct TreeNode *right;
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
  * };
  */
-int dfs(struct TreeNode *node, int i, int n, int *x) {
-    int k = 0;
-    if (i == n) {
-        if (node->left) {
-            k++;
-        }
-        if (node->right) {
-            k++;
-        }
-        *x = (*x) + k;
-​
-        return k == 2 ? 0 : 1;
-    }
-    
-    k = dfs(node->left, i + 1, n, x);
-    if (k) return k;
-​
-    k = dfs(node->right, i + 1, n, x);
-    if (k) return k;
-    
-    return 0;
+void dfs(struct TreeNode *node, int i, int n, int *x) {
+    if (i == n) {
+        if (node->left) (*x) ++;
+        if (node->right) (*x) ++;
+        return;
+    }
+    
+    if ((*x) % 2) return;
+    dfs(node->left, i + 1, n, x);
+    
+    if ((*x) % 2) return;
+    dfs(node->right, i + 1, n, x);    
 }
 int countNodes(struct TreeNode* root) {
-    struct TreeNode *n = root;
-    int i = 0;
-    int x = 0;
-    
-    if (!n) return 0;
-    
-    do {
-        i ++;
-        n = n->right;
-    } while (n);
-​
-    dfs(root, 1, i, &x);
-    
-    return (1 << i) - 1 + x;
+    struct TreeNode *node = root;
+    int i = 0;
+    int x = 0;
+    
+    if (!node) return 0;
+    
+    while (node) {
+        i ++;
+        node = node->right;
+    }
+
+    dfs(root, 1, i, &x);
+    
+    return (1 << i) - 1 + x;
 }
 
 
