@@ -35,9 +35,7 @@ char* decodeString(char* s) {
     
     char *newbuff = NULL;
     int newsz, newlen;
-    
-    char *tmp;
-    
+        
     buff = NULL;
     sz = len = 0;
     n = 0;
@@ -57,22 +55,15 @@ char* decodeString(char* s) {
             
             newlen = p->leading_len + p->repeat * len;
             newsz = newlen + 10;
-            newbuff = malloc(newsz * sizeof(char));
+            newbuff = realloc(p->leading_string, newsz * sizeof(char));
             //assert(newbuff);
-            newbuff[0] = 0;
-            if (p->leading_string) {
-                sprintf(newbuff, "%s", p->leading_string);
-                free(p->leading_string);
+            if (!p->leading_string) {
+                newbuff[0] = 0;
             }
-            tmp = newbuff + p->leading_len;
-            //printf("repeat: %d, buff: %s, len: %d\n", p->repeat, buff, len);
             while (p->repeat) {
-                strcat(tmp, buff);
-                tmp += len;
+                strcat(newbuff, buff);
                 p->repeat --;
             }
-            newbuff[newlen] = 0; // null terminated
-            //printf("newbuff: %s\n", newbuff);
             free(buff);
             sz = newsz;
             len = newlen;
