@@ -80,7 +80,7 @@ char* decodeString(char* s) {
         } else if (*s >= '0' && *s <= '9') {
             n = n * 10 + (*s) - '0';
         } else {
-            if (len == sz) {
+            if (len + 1 >= sz) {
                 if (sz == 0) sz = 10;
                 else sz *= 2;
                 buff = realloc(buff, sz * sizeof(char));
