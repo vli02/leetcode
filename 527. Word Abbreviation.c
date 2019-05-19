@@ -64,15 +64,16 @@ char ** wordsAbbreviation(char ** dict, int dictSize, int* returnSize){
     
     qsort(s, dictSize, sizeof(s[0]), cmp);
     
+    n = 0;
     for (i = 0; i < dictSize; i ++) {
         b = &s[i];
-        if (i > 0) {
+        /*if (i > 0) {
             a = &s[i - 1];
             if (a->len != b->len ||
                 a->p[a->len - 1] != b->p[b->len - 1]) {
                 a = NULL;
             }
-        } else a = NULL;
+        } else a = NULL;*/
         
         if (i != dictSize - 1) {
             c = &s[i + 1];
@@ -82,8 +83,9 @@ char ** wordsAbbreviation(char ** dict, int dictSize, int* returnSize){
             }
         } else c = NULL;
         
-        m = n = 0;
-        while (m < b->len && (a && b->p[m] == a->p[m])) m ++;
+        m = n;
+        n = 0;
+        /*while (m < b->len && (a && b->p[m] == a->p[m])) m ++;*/
         while (n < b->len && (c && b->p[n] == c->p[n])) n ++;
         prefix = m > n ? m : n;
         
