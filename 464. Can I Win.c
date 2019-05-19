@@ -28,40 +28,40 @@ The second player will win by choosing 10 and get a total = 11, which is >= desi
 Same with other integers chosen by the first player, the second player will always win.
 */
 
-int addwin(int v, int *dp, int k, int m, int total) {
-    int i, hewins;
-    
-    for (i = m - 1; i >= 0; i --) {
-        if (!(v & (1 << i))) {
-            if (k + i + 1 >= total) return 1;  // very tricky, cannot be outside the for loop.
-            v |= (1 << i);
-            hewins = dp[v - 1];
-            if (hewins == -1) {
-                hewins = addwin(v, dp, k + i + 1, m, total);
-                dp[v - 1] = hewins;
-            }
-            v &= ~(1 << i);
-            if (!hewins) return 1;
-        }
-    }
-    return 0;
+int canWin(int *dp, int v, int m, int total) {
+    int i, hewins;
+    
+    if (dp[v] != -1) return dp[v];      // already resolved
+    
+    for (i = m; i >= 1; i --) {
+        if (v & (1 << (i - 1))) continue;
+        v |= (1 << (i - 1));
+        if (i >= total) {
+            dp[v] = 1;          // resolve to win
+            return 1;
+        }
+        hewins = canWin(dp, v, m, total - i);
+        if (!hewins) return 1;
+        v &= ~(1 << (i - 1));   // not able to resolve, try with different number
+    }
+    dp[v] = 0;      // resolve to loose
+    return 0;
 }
 bool canIWin(int maxChoosableInteger, int desiredTotal) {
-    int w, v, *dp;
-    
-    // none can win
-    if (maxChoosableInteger * (maxChoosableInteger + 1) / 2 < desiredTotal) return false;
-    
-    v = 0;
-    dp = calloc((1 << maxChoosableInteger), sizeof(int));
-    //assert(dp);
-    memset(dp, -1, (1 << maxChoosableInteger) * sizeof(int));
-    
-    w = addwin(v, dp, 0, maxChoosableInteger, desiredTotal);
-    
-    free(dp);
-    
-    return w;
+    int w, dp[1 << 20];
+    
+    // none can win
+    if (maxChoosableInteger * (maxChoosableInteger + 1) / 2 < desiredTotal) return false;
+    
+    //dp = calloc((1 << (maxChoosableInteger)), sizeof(int));
+    //assert(dp);
+    memset(dp, -1, (1 << (maxChoosableInteger)) * sizeof(int));
+    
+    w = canWin(dp, 0, maxChoosableInteger, desiredTotal);
+    
+    //free(dp);
+    
+    return w;
 }
 
 
