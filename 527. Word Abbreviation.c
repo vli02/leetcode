@@ -28,7 +28,7 @@ typedef struct {
     int idx;
     char *p;
     int len;
-    char s[400];
+    char *s;
 } s_t;
 
 int cmp(const void *a, const void *b) {
@@ -54,16 +54,13 @@ char ** wordsAbbreviation(char ** dict, int dictSize, int* returnSize){
     s_t s[401], *a, *b, *c;
     int i, j, k, m, n, prefix;
     
-    char **pp, *p;
+    char **pp;
     
     for (i = 0; i < dictSize; i ++) {
         s[i].idx = i;
         s[i].p = dict[i];
         s[i].len = strlen(dict[i]);
     }
-    s[i].idx = 0;
-    s[i].p = NULL;
-    s[i].len = 0;
     
     qsort(s, dictSize, sizeof(s[0]), cmp);
     
@@ -91,8 +88,10 @@ char ** wordsAbbreviation(char ** dict, int dictSize, int* returnSize){
         prefix = m > n ? m : n;
         
         if (prefix + 3 >= b->len) {
-            strcpy(b->s, b->p);
+            b->s = strdup(b->p);
         } else {
+            b->s = malloc(prefix + 10 + 3);
+            //assert(b->s);
             strncpy(b->s, b->p, prefix + 1);
             k = sprintf(&b->s[prefix + 1], "%d", b->len - prefix - 2);
             b->s[prefix + 1 + k] = b->p[b->len - 1];
@@ -105,10 +104,7 @@ char ** wordsAbbreviation(char ** dict, int dictSize, int* returnSize){
     pp = malloc(dictSize * sizeof(char *));
     //assert(pp);
     for (i = 0; i < dictSize; i ++) {
-        p = malloc(strlen(s[i].s) + 1);
-        //assert(p);
-        strcpy(p, s[i].s);
-        pp[i] = p;
+        pp[i] = s[i].s;
     }
     
     *returnSize = dictSize;
