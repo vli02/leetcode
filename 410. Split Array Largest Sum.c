@@ -32,7 +32,7 @@ where the largest sum among the two subarrays is only 18.
 long split(int *nums, int sz, int start, int m, long sum[ROW], long dp[ROW][COL]) {
     int i;
     long k, k1, k2;
-    unsigned long min = 0xffffffff;
+    unsigned long min = -1;
     
     if (m == 1) return sum[start]; // sum of nums[start...end]
     
