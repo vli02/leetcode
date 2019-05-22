@@ -13,35 +13,36 @@ Answer: 3
 Credits:Special thanks to @mithmatt for adding this problem and creating all test cases.
 */
 
-void cs(char **grid, int i, int j, int gridRowSize, int gridColSize) {
-    int offset[4][2] = { { -1, 0 }, { 1, 0 }, { 0, -1, }, { 0, 1 } };
-    int x, y, k;
-    
-    for (k = 0; k < 4; k ++) {
-        x = i + offset[k][0];
-        y = j + offset[k][1];
-        if (x >= 0 && x < gridRowSize &&
-            y >= 0 && y < gridColSize &&
-            grid[x][y] == '1') {
-            grid[x][y] = 0;
-            cs(grid, x, y, gridRowSize, gridColSize);
-        }
-    }
+void cs(char **grid, int i, int j, int gridSize, int *gridColSize) {
+    int offset[4][2] = { { -1, 0 }, { 1, 0 }, { 0, -1, }, { 0, 1 } };
+    int x, y, k;
+
+    grid[i][j] = 0;
+
+    for (k = 0; k < 4; k ++) {
+        x = i + offset[k][0];
+        y = j + offset[k][1];
+        if (x >= 0 && x < gridSize &&
+            y >= 0 && y < gridColSize[x] &&
+            grid[x][y] == '1') {
+            cs(grid, x, y, gridSize, gridColSize);
+        }
+    }
 }
-​
-int numIslands(char** grid, int gridRowSize, int gridColSize) {
-    int i, j;
-    int n = 0;
-    
-    for (i = 0; i < gridRowSize; i ++) {
-        for (j = 0; j < gridColSize; j ++) {
-            if (grid[i][j] == '1') {
-                cs(grid, i, j, gridRowSize, gridColSize);
-                n ++;
-            }
-        }
-    }
-    return n;
+
+int numIslands(char** grid, int gridSize, int* gridColSize) {
+    int i, j;
+    int n = 0;
+    
+    for (i = 0; i < gridSize; i ++) {
+        for (j = 0; j < gridColSize[i]; j ++) {
+            if (grid[i][j] == '1') {
+                cs(grid, i, j, gridSize, gridColSize);
+                n ++;
+            }
+        }
+    }
+    return n;
 }
 
 
