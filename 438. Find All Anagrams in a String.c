@@ -66,22 +66,20 @@ int* findAnagrams(char * s, char * p, int* returnSize){
     while (c = s[tail ++]) {
         i = c - 'a';
         cnt[i] --;
-        if (cnt[i] >= 0) {
-            n --;
-            if (n == 0) {   // found one
-                add2res(&res, head);
-                c = s[head ++]; // push one out from head
-                j = c - 'a';
-                cnt[j] ++;
-                n ++;
-            }
-        } else {
-            while (cnt[i] < 0) {
+        n --;
+        if (cnt[i] < 0) {
+            do {
                 c = s[head ++];
                 j = c - 'a';
                 cnt[j] ++;
-                if (cnt[j] > 0) n ++;
-            }
+                n ++;
+            } while (cnt[i] < 0);
+        } else if (n == 0) {   // found one
+            add2res(&res, head);
+            c = s[head ++]; // push one out from head
+            j = c - 'a';
+            cnt[j] ++;
+            n ++;
         }
     }
     *returnSize = res.n;
