@@ -32,8 +32,8 @@ Input points have NO order. No order required for output.
 /**
  * Definition for a point.
  * struct Point {
- *     int x;
- *     int y;
+ *     int x;
+ *     int y;
  * }
  */
 /**
@@ -41,110 +41,110 @@ Input points have NO order. No order required for output.
  * Note: The returned array must be malloced, assume caller calls free().
  */
 typedef struct {
-    struct Point *p;
-    struct Point *base;
+    struct Point *p;
+    struct Point *base;
 } pa_t;
 int pacmp(struct Point *p1, struct Point *p2, struct Point *p0) {
-    int k;
-    k = (p1->y - p0->y) * (p2->x - p0->x) -
-        (p1->x - p0->x) * (p2->y - p0->y);   // delta of polar angle
-    return k;
+    int k;
+    k = (p1->y - p0->y) * (p2->x - p0->x) -
+        (p1->x - p0->x) * (p2->y - p0->y);   // delta of polar angle
+    return k;
 }
 int cmp(const void *a, const void *b) {
-    struct Point *p1 = ((pa_t *)a)->p;
-    struct Point *p2 = ((pa_t *)b)->p;
-    struct Point *p0 = ((pa_t *)a)->base;
-    int k = pacmp(p1, p2, p0);
-    if (k == 0) {
-        k = (p1->x - p0->x) * (p1->x - p0->x) +
-            (p1->y - p0->y) * (p1->y - p0->y) -
-            (p2->x - p0->x) * (p2->x - p0->x) -
-            (p2->y - p0->y) * (p2->y - p0->y);  // delta of distance
-    }
-    return k;
+    struct Point *p1 = ((pa_t *)a)->p;
+    struct Point *p2 = ((pa_t *)b)->p;
+    struct Point *p0 = ((pa_t *)a)->base;
+    int k = pacmp(p1, p2, p0);
+    if (k == 0) {
+        k = (p1->x - p0->x) * (p1->x - p0->x) +
+            (p1->y - p0->y) * (p1->y - p0->y) -
+            (p2->x - p0->x) * (p2->x - p0->x) -
+            (p2->y - p0->y) * (p2->y - p0->y);  // delta of distance
+    }
+    return k;
 }
-​
+
 #define PUSH(P) do { \
-    if (psz == pn) { \
-        psz *= 2; \
-        stack = realloc(stack, psz * sizeof(struct Point)); \
-        /*assert(stack);*/ \
-    } \
-    stack[pn ++] = *(P); \
+    if (psz == pn) { \
+        psz *= 2; \
+        stack = realloc(stack, psz * sizeof(struct Point)); \
+        /*assert(stack);*/ \
+    } \
+    stack[pn ++] = *(P); \
 } while (0)
-​
+
 #define POP() do { \
-    -- pn; \
+    -- pn; \
 } while (0)
-​
+
 #define TOP() &stack[pn - 1]
-​
+
 #define TOPTOP() &stack[pn - 2]
-​
+
 struct Point* outerTrees(struct Point* points, int pointsSize, int* returnSize) {
-    int i, j, k;
-    struct Point swap, *base, *p, *q, *stack;
-    pa_t *pas;
-    int psz, pn;
-    
-    if (pointsSize <= 3) {
-        *returnSize = pointsSize;
-        return points;
-    }
-    
-    // graham's scan
-    // 1. find bottom-left as base
-    base = &points[0];
-    for (i = 1; i < pointsSize; i ++) {
-        p = &points[i];
-        if (p->y < base -> y ||
-            (p->y == base->y && p->x < base->x)) {
-            base = p;
-        }
-    }
-    swap = points[0];   // put bottom-left to the head of the array
-    points[0] = *base;
-    *base = swap;
-    
-    // 2. polar angle sorting
-    pas = malloc((pointsSize - 1) * sizeof(pa_t));
-    //assert(pas);
-    base = &points[0];
-    for (i = 0; i < pointsSize - 1; i ++) {
-        p = &points[i + 1];
-        pas[i].p = p;
-        pas[i].base = base;
-    }
-    qsort(pas, pointsSize - 1, sizeof(pa_t), cmp);
-    
-    // 3. scan
-    psz = 100;
-    stack = malloc(psz * sizeof(struct Point));
-    //assert(stack);
-    pn = 0;
-    
-    PUSH(base);
-    PUSH(pas[0].p);
-    PUSH(pas[1].p);
-    for (i = 2; i < pointsSize - 1; i ++) {
-        p = pas[i].p;
-        while (pn > 1 && pacmp(p, TOP(), TOPTOP()) < 0) POP();
-        PUSH(p);
-    }
-    
-    // add those which has the same polar angle and smaller distance to base
-    q = TOP();
-    for (i = pointsSize - 2; i >= 0; i --) {
-        p = pas[i].p;
-        if (p->x == q->x && p->y == q->y) continue;
-        if (!pacmp(p, q, base)) PUSH(p);
-        else break;
-    }
-    
-    free(pas);
-    
-    *returnSize = pn;
-    return stack;
+    int i, j, k;
+    struct Point swap, *base, *p, *q, *stack;
+    pa_t *pas;
+    int psz, pn;
+    
+    if (pointsSize <= 3) {
+        *returnSize = pointsSize;
+        return points;
+    }
+    
+    // graham's scan
+    // 1. find bottom-left as base
+    base = &points[0];
+    for (i = 1; i < pointsSize; i ++) {
+        p = &points[i];
+        if (p->y < base -> y ||
+            (p->y == base->y && p->x < base->x)) {
+            base = p;
+        }
+    }
+    swap = points[0];   // put bottom-left to the head of the array
+    points[0] = *base;
+    *base = swap;
+    
+    // 2. polar angle sorting
+    pas = malloc((pointsSize - 1) * sizeof(pa_t));
+    //assert(pas);
+    base = &points[0];
+    for (i = 0; i < pointsSize - 1; i ++) {
+        p = &points[i + 1];
+        pas[i].p = p;
+        pas[i].base = base;
+    }
+    qsort(pas, pointsSize - 1, sizeof(pa_t), cmp);
+    
+    // 3. scan
+    psz = 100;
+    stack = malloc(psz * sizeof(struct Point));
+    //assert(stack);
+    pn = 0;
+    
+    PUSH(base);
+    PUSH(pas[0].p);
+    PUSH(pas[1].p);
+    for (i = 2; i < pointsSize - 1; i ++) {
+        p = pas[i].p;
+        while (pn > 1 && pacmp(p, TOP(), TOPTOP()) < 0) POP();
+        PUSH(p);
+    }
+    
+    // add those which has the same polar angle and smaller distance to base
+    q = TOP();
+    for (i = pointsSize - 2; i >= 0; i --) {
+        p = pas[i].p;
+        if (p->x == q->x && p->y == q->y) continue;
+        if (!pacmp(p, q, base)) PUSH(p);
+        else break;
+    }
+    
+    free(pas);
+    
+    *returnSize = pn;
+    return stack;
 }
 
 
