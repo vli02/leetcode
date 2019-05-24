@@ -35,53 +35,41 @@ String S is non-empty.
 */
 
 char* licenseKeyFormatting(char* S, int K) {
-    char *p;
-    int l, n, x;
-    char *head;
-    int i;
-    
-    p = S;
-    l = 0;
-    while (*p) {
-        if (*p != '-') l ++;  // get length all valid characters
-        p ++;
-    }
-    
-    n = l / K;    // total number of groups having full of K characters
-    x = l % K;    // extra group in the beginning
-​
-    p = malloc(l + n + 1);
-    //assert(p);
-    head = p;
-    
-    while (*S && x) {  // encode extra group first
-        if (*S != '-') {
-            *p = (*S >= 'a' && *S <= 'z') ? 'A' + *S - 'a' : *S;
-            p ++;
-            x --;
-        }
-        S ++;
-    }
-    if (p != head && *S) {  // insert '-' if there is an extra group ahead
-        *p = '-';
-        p ++;
-    }
-    i = 0;
-    while (*S) {  // encode the rest of characters
-        if (*S != '-') {
-            if (i != 0 && (i % K) == 0) {
-                *p = '-';
-                p ++;
-            }
-            *p = (*S >= 'a' && *S <= 'z') ? 'A' + *S - 'a' : *S;
-            p ++;
-            i ++;
-        }
-        S ++;
-    }
-    *p = 0;
-    
-    return head;
+    char *p;
+    int l, n, m;
+    char *head, c;
+    int i;
+    
+    p = S;
+    l = 0;
+    while (*p) {
+        if (*p != '-') l ++;  // get length all valid characters
+        p ++;
+    }
+    
+    if (l == 0) return "";
+    
+    n = l / K;          // total number of groups having full of K characters
+    m = K - (l % K);    // start number of first group
+
+    p = malloc(l + n + 1);
+    //assert(p);
+    head = p;
+    
+    while (c = *(S ++)) {
+        if (c == '-') continue;
+        *p = (c >= 'a' && c <= 'z') ? c - 'a' + 'A': c;
+        p ++;
+        m = (m + 1) % K;
+        if (m == 0) {
+            *p = '-';
+            p ++;
+        }
+    }
+    if (*(p - 1) == '-') p --;
+    *p = 0;
+    
+    return head;
 }
 
 

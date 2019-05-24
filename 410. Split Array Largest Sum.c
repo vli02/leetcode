@@ -26,55 +26,49 @@ The best way is to split it into [7,2,5] and [10,8],
 where the largest sum among the two subarrays is only 18.
 */
 
-#define IDX(I, L, M) ((I) * (L) + M - 1)
-int split(int *nums, int sz, int start, int l, int m, int *sum, int *dp) {
-    int i, k, k1, k2;
-    unsigned int min = 0xffffffff;
-    
-    if (m == 1) return sum[start]; // sum of nums[start...end]
-    
-    if (dp[IDX(start, l, m)] != -1) return dp[IDX(start, l, m)];
-    
-    k1 = 0;
-    for (i = start; i <= sz - m; i ++) {
-        k1 += nums[i];                                   // first half
-        k2 = split(nums, sz, i + 1, l, m - 1, sum, dp);  // second half
-        k = k1 > k2 ? k1 : k2;                           // max of first and second
-        if (min > k) min = k;                            // min of all possible cuts
-    }
-    dp[IDX(start, l, m)] = min;
-    
-    return min;
+#define ROW 1000
+#define COL 51
+
+long split(int *nums, int sz, int start, int m, long sum[ROW], long dp[ROW][COL]) {
+    int i;
+    long k, k1, k2;
+    unsigned long min = -1;
+    
+    if (m == 1) return sum[start]; // sum of nums[start...end]
+    
+    if (dp[start][m] != -1) return dp[start][m];
+    
+    k1 = 0;
+    for (i = start; i <= sz - m; i ++) {
+        k1 += nums[i];                                  // first half
+        k2 = split(nums, sz, i + 1, m - 1, sum, dp);    // second half
+        k = k1 > k2 ? k1 : k2;                          // max of first and second
+        if (min > k) min = k;                           // min of all possible cuts
+    }
+    dp[start][m] = min;
+    
+    return min;
 }
 int splitArray(int* nums, int numsSize, int m) {
-    // the lower bound is the max number in the array
-    // the upper bound is the summary of all in the array
-    // use binary search between lower and upper bounds to
-    // verify if assume boundary is possible to split the
-    // array into m.
-    
-    // dp/memorization
-    int *sum, *dp;
-    int k, i;
-    
-    sum = malloc(numsSize * sizeof(int));
-    dp = malloc(numsSize * m * sizeof(int));
-    //assert(sum && dp);
-    
-    k = 0;
-    for (i = numsSize - 1; i >= 0; i --) {
-        k += nums[i];
-        sum[i] = k;
-    }
-    
-    memset(dp, -1, numsSize * m * sizeof(int));
-    
-    i = split(nums, numsSize, 0, m, m, sum, dp);
-    
-    free(sum);
-    free(dp);
-    
-    return i;
+    // the lower bound is the max number in the array
+    // the upper bound is the summary of all in the array
+    // use binary search between lower and upper bounds to
+    // verify if assume boundary is possible to split the
+    // array into m.
+    
+    // dp/memorization
+    long sum[ROW], dp[ROW][COL], k;
+    int i;
+    
+    k = 0;
+    for (i = numsSize - 1; i >= 0; i --) {
+        k += nums[i];
+        sum[i] = k;
+    }
+    
+    memset(dp, -1, ROW * COL * sizeof(dp[0][0]));
+    
+    return split(nums, numsSize, 0, m, sum, dp);;
 }
 
 
