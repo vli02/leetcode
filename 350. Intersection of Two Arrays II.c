@@ -26,54 +26,104 @@ What if elements of nums2 are stored on disk, and the memory is limited such tha
  * Return an array of size *returnSize.
  * Note: The returned array must be malloced, assume caller calls free().
  */
-int* intersect(int* nums1, int nums1Size, int* nums2, int nums2Size, int* returnSize) {
-    int big, small, i, j, k;
-    int *bp, *sp;
-    int *result, *flags;
-​
-    *returnSize = 0;
-    
-    if (!nums1Size || !nums2Size) {
-        return NULL;
-    }
-    
-    if (nums1Size > nums2Size) {
-        big = nums1Size;
-        bp = nums1;
-        small = nums2Size;
-        sp = nums2;
-    } else {
-        big = nums2Size;
-        bp = nums2;
-        small = nums1Size;
-        sp = nums1;
-    }
-    
-    result = malloc(small * sizeof(int));
-    flags  = calloc(big, sizeof(int));
-    if (!result || !flags) {
-        return NULL;
-    }
-    
-    k = 0;
-    
-    i = 0;
-    while (i < small) {
-        j = 0;
-        while (j < big) {
-            if (!flags[j] && sp[i] == bp[j]) {
-                result[k++] = sp[i];
-                flags[j] = 1;
-                break;
-            }
-            j ++;
-        }
-        i ++;
-    }
-    *returnSize = k;
-    free(flags);
-    return result;
+#if 1
+typedef struct e_s {
+    int val;
+    int cnt;
+    struct e_s *shadow;
+} e_t;
+#define HF  1021
+e_t *lookup(e_t **ht, int v) {
+    int hc = v % HF;
+    e_t *e = ht[hc];
+    while (e && e->val != v) e = e->shadow;
+    return e;
 }
+void insert(e_t **ht, e_t *e) {
+    int hc = e->val % HF;
+    e->shadow = ht[hc];
+    ht[hc] = e;
+}
+int* intersect(int* nums1, int nums1Size, int* nums2, int nums2Size, int* returnSize) {
+    e_t *e, *buff, *ht[HF] = { 0 };
+    int i, v;
+    int k, *result;
+    
+    if (nums1Size > nums2Size) {
+        return intersect(nums2, nums2Size, nums1, nums1Size, returnSize);
+    }
+    
+    *returnSize = 0;
+    if (!nums1Size || !nums2Size) {
+        return NULL;
+    }
+    
+    buff = malloc(nums2Size * sizeof(e_t));
+    //assert(buff);
+    for (i = 0; i < nums2Size; i ++) {
+        v = nums2[i];
+        e = lookup(ht, v);
+        if (e) e->cnt ++;
+        else {
+            e = &buff[i];
+            e->val = v;
+            e->cnt = 1;
+            insert(ht, e);
+        }
+    }
+    
+    k = 0;
+    result = malloc(nums1Size * sizeof(int));
+    //assert(result);
+    
+    for (i = 0; i < nums1Size; i ++) {
+        v = nums1[i];
+        e = lookup(ht, v);
+        if (e && e->cnt > 0) {
+            result[k ++] = v;
+            e->cnt --;
+        }
+    }
+    
+    free(buff);
+    
+    *returnSize = k;
+    return result;
+}
+#else
+int* intersect(int* nums1, int nums1Size, int* nums2, int nums2Size, int* returnSize) {
+    int i, j, k;
+    int *result, *flags;
+    
+    if (nums1Size > nums2Size) {
+        return intersect(nums2, nums2Size, nums1, nums1Size, returnSize);
+    }
+    
+    *returnSize = 0;
+    if (!nums1Size || !nums2Size) {
+        return NULL;
+    }
+    
+    result = malloc(nums1Size * sizeof(int));
+    flags  = calloc(nums2Size, sizeof(int));
+    //assert(result && flags);
+    
+    k = 0;
+    for (i = 0; i < nums1Size; i ++) {
+        for (j = 0; j < nums2Size; j ++) {
+            if (!flags[j] && nums1[i] == nums2[j]) {
+                result[k++] = nums1[i];
+                flags[j] = 1;
+                break;
+            }
+        }
+    }
+    
+    *returnSize = k;
+    free(flags);
+    return result;
+}
+#endif
 
 
 /*
