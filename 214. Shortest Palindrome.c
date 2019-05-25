@@ -12,14 +12,14 @@ Credits:Special thanks to @ifanchu for adding this problem and creating all test
 */
 
 char* shortestPalindrome(char* s) {
-    // two pointers, head and tail
-    // verify if it is a valid palindrome
-    // if not, reduce tail pointer and repeat verify
-    // if yes, stop verify
-    // add characters from end to the tail pointer to a buffer
-    // append characters from head to tail to the buffer
-    // done
-    return s;
+    // two pointers, head and tail
+    // verify if it is a valid palindrome
+    // if not, reduce tail pointer and repeat verify
+    // if yes, stop verify
+    // add characters from end to the tail pointer to a buffer
+    // append characters from head to tail to the buffer
+    // done
+    return s;
 }
 
 
