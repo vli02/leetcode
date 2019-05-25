@@ -49,10 +49,6 @@ int* intersect(int* nums1, int nums1Size, int* nums2, int nums2Size, int* return
     int i, v;
     int k, *result;
     
-    if (nums1Size > nums2Size) {
-        return intersect(nums2, nums2Size, nums1, nums1Size, returnSize);
-    }
-    
     *returnSize = 0;
     if (!nums1Size || !nums2Size) {
         return NULL;
