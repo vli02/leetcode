@@ -16,27 +16,21 @@ Note: m and n will be at most 100.
 */
 
 int uniquePaths(int m, int n) {
-    int path[100][100];
-    int i, j;
-    i = 0;
-    
-    if (!m || !n) return 0;
-    
-    while (i < m) {
-        j = 0;
-        while (j < n) {
-            if (i == 0 && j == 0) {
-                path[i][j] = 1;
-            } else if (i == 0 || j == 0) {
-                path[i][j] = 1;
-            } else {
-                path[i][j] = path[i][j - 1] + path[i - 1][j];
-            }
-            j ++;
-        }
-        i ++;
-    }
-    return path[m - 1][n - 1];
+    int path[100][100];
+    int i, j;
+    
+    if (!m || !n) return 0;
+    
+    for (i = 0; i < m; i ++) {
+        for (j = 0; j < n; j ++) {
+            if (i == 0 || j == 0) {
+                path[i][j] = 1;
+            } else {
+                path[i][j] = path[i][j - 1] + path[i - 1][j];
+            }
+        }
+    }
+    return path[m - 1][n - 1];
 }
 
 
