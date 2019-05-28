@@ -74,41 +74,43 @@ Note:
 */
 
 int smallest_among_greaters(int k, int *map, int sz) {
-    for (int i = k; i < sz; i ++) {
-        if (map[i] != 0) return map[i];
-    }
-    return 0;
+    for (int i = k; i < sz; i ++) {
+        if (map[i] != 0) return map[i];
+    }
+    return 0;
 }
 int greatest_among_smallers(int k, int *map, int sz) {
-    for (int i = k; i >= 0; i --) {
-        if (map[i] != 0) return map[i];
-    }
-    return 0;
-
-int oddEvenJumps(int* A, int ASize){
-    int map[100000] = { 0 };
-    
-#define sz (sizeof(map)/sizeof(map[0]))
-    
-    int hi[20000] = { 0 }, lo[20000] = { 0 };
-    
-    int i, h, l, ans;
-    
-    hi[ASize - 1] = lo[ASize - 1] = 1;
-    map[A[ASize - 1]] = ASize;  // 1 - ASize
-    ans = 1;
-    
-    for (i = ASize - 2; i >= 0; i --) {
-        h = smallest_among_greaters(A[i], map, sz);
-        l = greatest_among_smallers(A[i], map, sz);
-        if (h && lo[h - 1]) { hi[i] = 1; ans ++; }
-        if (l && hi[l - 1]) lo[i] = 1;
-        map[A[i]] = i + 1;
-    }
-    
-    return ans;
+    for (int i = k; i >= 0; i --) {
+        if (map[i] != 0) return map[i];
+    }
+    return 0;
 }
-
+int oddEvenJumps(int* A, int ASize){
+    // if jump can to to a high or low number on current index
+    bool hi[20000] = { false }, lo[20000] = { false };
+    
+    // index of a number is on
+    int map[100000] = { 0 };
+#define sz (sizeof(map) / sizeof(map[0]))
+    
+    int i, h, l, ans;
+    
+    hi[ASize - 1] = lo[ASize - 1] = true;
+    
+    map[A[ASize - 1]] = ASize;  // index + 1
+    
+    ans = 1;
+    
+    for (i = ASize - 2; i >= 0; i --) {
+        h = smallest_among_greaters(A[i], map, sz);
+        l = greatest_among_smallers(A[i], map, sz);
+        if (h && lo[h - 1]) { hi[i] = true; ans ++; }
+        if (l && hi[l - 1]) lo[i] = true;
+        map[A[i]] = i + 1;
+    }
+    
+    return ans;
+}
 
 
 /*
