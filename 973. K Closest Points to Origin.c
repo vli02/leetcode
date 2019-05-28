@@ -82,7 +82,7 @@ void hsort(void *p, int n, int l,
         s(t, p);
     }
 }
-int** kClosest(int** points, int pointsRowSize, int *pointsColSizes, int K, int** columnSizes, int* returnSize) {
+int** kClosest(int** points, int pointsRowSize, int *pointsColSizes, int K, int* returnSize, int** columnSizes) {
     p_t *a;
     int i, x, y, d;
     int **p, *col, *buff;
