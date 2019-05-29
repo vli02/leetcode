@@ -67,9 +67,11 @@ Explanation:
 The output consists of two word squares. The order of output does not matter (just the order of words in each word square matters).
 */
 
+
+
 /**
  * Return an array of arrays of size *returnSize.
- * The sizes of the arrays are returned as *columnSizes array.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
  * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
  */
 typedef struct node_s {
@@ -137,9 +139,9 @@ void add_word(node_t *p, char *word) {
     }
     p->s[p->n ++] = word;
 }
-char*** wordSquares(char** words, int wordsSize, int** columnSizes, int* returnSize) {
+char*** wordSquares(char** words, int wordsSize, int* returnSize, int** columnSizes) {
     node_t root = { 0 }, *node, *p;
-    char *word, *s, c, *prefix, **buff;
+    char *word, *s, c, prefix[5], **buff;
     int i, j, k, n, l;
     
     char ***ret = NULL;
@@ -165,8 +167,7 @@ char*** wordSquares(char** words, int wordsSize, int** columnSizes, int* returnS
     
     l = strlen(words[0]);
     buff = malloc(l * sizeof(char *));
-    prefix = malloc(l * sizeof(char));
-    //assert(buff && prefix);
+    //assert(buff);
     
     for (i = 0; i < wordsSize; i ++) {
         buff[0] = words[i];
@@ -181,7 +182,6 @@ char*** wordSquares(char** words, int wordsSize, int** columnSizes, int* returnS
         }
     }
     
-    free(prefix);
     free(buff);
     for (i = 0; i < 26; i ++) {
         free_trie(root.child[i]);
@@ -189,6 +189,7 @@ char*** wordSquares(char** words, int wordsSize, int** columnSizes, int* returnS
     
     return ret;
 }
+
 
 /*
 Difficulty:Hard
