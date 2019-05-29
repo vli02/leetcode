@@ -32,49 +32,79 @@ Note:
 	All points are distinct.
 */
 
-int cmp(const void *a, const void *b) {
-    int *p1 = *(int **)a;
-    int *p2 = *(int **)b;
-    
-    if (p1[0] < p2[0]) return -1;
-    if (p1[0] > p2[0]) return 1;
-    if (p1[1] < p2[1]) return -1;
-    return 1;
-}
-​
-int minAreaRect(int** points, int pointsSize, int* pointsColSize){
-    int *a, *b, *c, *d, area, ans = 0;
-    
-    // x ascending, y ascending
-    qsort(points, pointsSize, sizeof(int *), cmp);
-    
-    for (int i = 0; i < pointsSize; i ++) {
-        a = points[i];
-        for (int j = i + 1; j < pointsSize && points[j][0] == a[0]; j ++) {
-            b = points[j];
-            for (int k = j + 1; k < pointsSize; k ++) {
-                c = points[k];
-                if (c[1] == a[1]) {
-                    for (int l = k + 1; l < pointsSize && points[l][0] == c[0]; l ++) {
-                        d = points[l];
-                        if (d[1] == b[1]) {
-                            // this is a rectangle
-                            area = (b[1] - a[1]) * (c[0] - a[0]);
-                            if (ans == 0 || ans > area) ans = area;
-                            goto next;
-                        }
-                    }
+#define HF 1021
 
-            }
-next:
-            b = NULL;
-        }
-    }
-    
-    return ans;
+typedef struct e_s {
+    int y1;
+    int y2;
+    int x;
+    struct e_s *shadow;
+} e_t;
+
+typedef struct {
+    e_t *e[HF];
+    e_t buff[250000];
+    int n;
+} h_t;
+
+int hash_code(int y1, int y2) {
+    int hc = y1 * 33 + y2;
+    return hc % HF;
 }
-​
-​
+
+e_t *lookup(h_t *ht, int y1, int y2) {
+    int hc = hash_code(y1, y2);
+    e_t *e = ht->e[hc];
+    while (e && (e->y1 != y1 || e->y2 != y2)) e = e->shadow;
+    return e;
+}
+
+void insert(h_t *ht, int y1, int y2, int x) {
+    e_t *e = &ht->buff[ht->n ++];
+    int hc = hash_code(y1, y2);
+    e->y1 = y1;
+    e->y2 = y2;
+    e->x = x;
+    e->shadow = ht->e[hc];
+    ht->e[hc] = e;
+}
+
+int cmp(const void *a, const void *b) {
+    int *p1 = *(int **)a;
+    int *p2 = *(int **)b;
+    
+    if (p1[0] < p2[0]) return -1;
+    if (p1[0] > p2[0]) return 1;
+    if (p1[1] < p2[1]) return -1;
+    return 1;
+}
+
+int minAreaRect(int** points, int pointsSize, int* pointsColSize){
+    int i, j, x, y1, y2, area, ans = 0;
+    e_t *e;
+    h_t ht = { 0 };
+    
+    // x ascending, y ascending
+    qsort(points, pointsSize, sizeof(int *), cmp);
+    
+    for (int i = 0; i < pointsSize - 1; i ++) {
+        x  = points[i][0];
+        y1 = points[i][1];
+        for (j = i + 1; j < pointsSize && points[j][0] == x; j ++) {
+            y2 = points[j][1];
+            e = lookup(&ht, y1, y2);
+            if (e) {
+                area = (x - e->x) * (y2 - y1);
+                if (ans == 0 || ans > area) ans = area;
+                e->x = x;
+            } else {
+                insert(&ht, y1, y2, x);
+            }
+        }
+    }
+    
+    return ans;
+}
 
 
 /*
