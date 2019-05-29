@@ -90,7 +90,7 @@ void make_buff(node_t *node, char *buff, int *l) {
         if (p && p->entry_cnt > 0) {
             p->entry_cnt --;
             if (p->entry_cnt == 0) {
-                buff[(*l) ++] = 'a' + p->key;
+                buff[(*l) ++] = 'a' + p->key - 1;
                 make_buff(p, buff, l);
             }
         }
@@ -110,11 +110,7 @@ char* alienOrder(char** words, int wordsSize) {
     buff = calloc(27, sizeof(char)); // include a null terminator
     //assert(buff);
     
-    for (i = 0; i < 26; i ++) {
-        node[i].key = -1;
-    }
-    
-    root.key = 31;
+    root.key = 30;
     root.entry_cnt = 1;
 
     // build prefix tree
@@ -133,11 +129,11 @@ char* alienOrder(char** words, int wordsSize) {
             p2 = &node[c2];
             if (!p1->child[c2]) {  // make c2 as a child of c1
                 p1->child[c2] = p2;
-                p2->key = c2;
+                p2->key = c2 + 1;
                 p2->entry_cnt ++;
-                if (p1->key == -1) {  // put c1 into the tree
+                if (p1->key == 0) {  // put c1 into the tree
                     root.child[c1] = p1;
-                    p1->key = c1;
+                    p1->key = c1 + 1;
                     p1->entry_cnt ++;
                 }
             }
@@ -153,9 +149,9 @@ char* alienOrder(char** words, int wordsSize) {
         while (s1[j]) {
             c1 = s1[j] - 'a';
             p1 = &node[c1];
-            if (p1->key == -1) {
+            if (p1->key == 0) {
                 root.child[c1] = p1;
-                p1->key = c1;
+                p1->key = c1 + 1;
                 p1->entry_cnt = 1;
             }
             j ++;
