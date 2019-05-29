@@ -63,7 +63,7 @@ int numMusicPlaylists(int N, int L, int K){
     for (i = 1; i <= L; i ++) {
         for (j = 1; j <= N; j ++) {
             x = N - j + 1;      // number of songs not being selected (including current song j)
-            dp[IDX(i, j)] += dp[IDX(i - 1, j - 1)] * x; // choose a new song
+            dp[IDX(i, j)] = dp[IDX(i - 1, j - 1)] * x;  // choose a new song
             
             x = j - K;          // number of played songs (including song j) can be re-selected
             if (x > 0) {
