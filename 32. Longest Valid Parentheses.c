@@ -20,8 +20,8 @@ int longestValidParentheses(char* s) {
     v = malloc(l * sizeof(int));
     //assert(v);
     
-    i = 0; n = 0;
-    while (i < l) {
+    n = 0;
+    for (i = 0; i < l; i ++) {
         if (s[i] == '(') {
             v[i] = 1;
             n ++;
@@ -33,12 +33,10 @@ int longestValidParentheses(char* s) {
                 v[i] = 0;
             }
         }
-        i ++;
     }
     
-    i = l; n = 0;
-    while (i > 0) {
-        i --;
+    n = 0;
+    for (i = l - 1; i >= 0; i --) {
         if (s[i] == ')') {
             if (v[i]) {
                 n ++;
@@ -52,8 +50,8 @@ int longestValidParentheses(char* s) {
         }
     }
     
-    i = 1; n = 0; max = 0;
-    while (i < l) {
+    n = 0; max = 0;
+    for (i = 1; i < l; i ++) {
         if (v[i]) {
             v[i] = v[i - 1] + 1;
         
@@ -61,7 +59,6 @@ int longestValidParentheses(char* s) {
                 max = v[i];
             }
         }
-        i ++;
     }
     
     free(v);
