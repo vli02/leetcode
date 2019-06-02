@@ -45,44 +45,39 @@ Note:
  * };
  */
 typedef struct {
-    int dep;
-    bool flag;
-} set_t;
-bool verify_and_set(set_t *set, int d) {
-    if (set->dep == -1) {    // first time verifying a depth
-        set->dep = d;
+    int d;
+    bool shrinked;
+} dep_t;
+bool verify_depth(dep_t *dep, int d) {
+    if (dep->d == -1) {    // first time verifying a depth
+        dep->d = d;
         return true;
     }
     
-    // assert(d <= set->dep);
-    if (d == set->dep - 1 && !set->flag) {
-        set->flag = true;
-        set->dep --;
+    // assert(d <= dep->d);
+    if (d == dep->d - 1 && !dep->shrinked) {
+        dep->d --;
+        dep->shrinked = true;
     }
     
-    if (d == set->dep) {
+    if (d == dep->d) {
         return true;
     }
     return false;
 }
-bool traversal(struct TreeNode *node, set_t *set, int d) {
-    if (set->dep != -1 && d > set->dep) return false;
-    
-    if (!node->left) {
-        if (node->right) return false;
-        // this is a left node
-        if (verify_and_set(set, d) == false) return false;
-    } else if (!traversal(node->left, set, d + 1)) return false;
-    else if (!node->right) {
-        if (verify_and_set(set, d) == false) return false;
-    } else if (!traversal(node->right, set, d + 1)) return false;
+bool traversal(struct TreeNode *node, dep_t *dep, int d) {
+    if (!node) {
+        if (!verify_depth(dep, d)) return false;
+    } else {
+        if (!traversal(node->left, dep, d + 1)) return false;
+        if (!traversal(node->right, dep, d + 1)) return false;
+    }
     
     return true;
 }
 bool isCompleteTree(struct TreeNode* root) {
-    set_t set = { -1, false };
-    if (!root) return true;
-    return traversal(root, &set, 0);
+    dep_t dep = { -1, false };
+    return traversal(root, &dep, 0);
 }
 
 
