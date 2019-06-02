@@ -53,11 +53,14 @@ bool verify_and_set(set_t *set, int d) {
         set->dep = d;
         return true;
     }
+    
     // assert(d <= set->dep);
-    if (d == set->dep - 1) {
-        if (!set->flag) set->flag = true;
-        return true;
-    } else if (d == set->dep && !set->flag) {
+    if (d == set->dep - 1 && !set->flag) {
+        set->flag = true;
+        set->dep --;
+    }
+    
+    if (d == set->dep) {
         return true;
     }
     return false;
