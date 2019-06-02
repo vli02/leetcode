@@ -73,20 +73,18 @@ int** intervalIntersection(int** A, int ASize, int* AColSize, int** B, int BSize
     i = 0, j = 0;
     while (i < ASize && j < BSize) {
         a = A[i]; b = B[j];
-        if (a[0] > b[1]) {
-            j ++; continue;
-        }
-        if (b[0] > a[1]) {
-            i ++; continue;
-        }
         x = _max(a[0], b[0]);
         y = _min(a[1], b[1]);
+        
+        if (x <= y) add2res(&res, x, y);
+        
         if (a[1] > b[1]) j ++;
         else i ++;
-        add2res(&res, x, y);
     }
-    **returnColumnSizes = res.c;
+    
+    *returnColumnSizes = res.c;
     *returnSize = res.n;
+    
     return res.p;
 }
 
