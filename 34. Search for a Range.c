@@ -18,53 +18,38 @@ return [3, 4].
  * Note: The returned array must be malloced, assume caller calls free().
  */
 int* searchRange(int* nums, int numsSize, int target, int* returnSize) {
-    int i, j, *range;
-    int start, end, mid;
-    
-    range = malloc(2 * sizeof(int));
-    //assert(range);
-    
-    *returnSize = 2;
-    range[0] = range[1] = -1;
-    
-#if 0
-    // O(n2)
-    for (i = 0; i < numsSize; i ++) {
-        if (range[0] == -1) {
-            if (nums[i] == target) {
-                range[0] = range[1] = i;
-            } else if (nums[i] > target) {
-                break;
-            }
-        } else if (nums[i] == target) {
-            range[1] = i;
-        } else {
-            break;
-        }
-    }
-#else
-    i = -1;
-    start = 0; end = numsSize - 1;
-    while (i == -1 && start <= end) {
-        mid = start + (end - start) / 2;
-        if (nums[mid] == target) {
-            i = j = mid;
-        } else if (nums[mid] < target) {
-            start = mid + 1;
-        } else {
-            end = mid - 1;
-        }
-    }
-    while (i >= 0 && nums[i] == target) {
-        range[0] = i;
-        i --;
-    }
-    while (j >= 0 && j < numsSize && nums[j] == target) {
-        range[1] = j;
-        j ++;
-    }
-#endif
-    return range;
+    int i, j, *range;
+    int start, end, mid;
+    
+    range = malloc(2 * sizeof(int));
+    //assert(range);
+    
+    i = j = -1;
+    start = 0; end = numsSize - 1;
+    while (start <= end) {
+        mid = start + (end - start) / 2;
+        if (nums[mid] == target) {
+            i = j = mid;
+            while (i > 0 && nums[i - 1] == target) {
+                i --;
+            }
+            while (j < numsSize - 1 && nums[j + 1] == target) {
+                j ++;
+            }
+            break;
+        } else if (nums[mid] < target) {
+            start = mid + 1;
+        } else {
+            end = mid - 1;
+        }
+    }
+    
+    range[0] = i;
+    range[1] = j;
+    
+    *returnSize = 2;
+    
+    return range;
 }
 
 
