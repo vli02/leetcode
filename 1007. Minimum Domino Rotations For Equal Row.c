@@ -54,12 +54,12 @@ int minDominoRotations(int* A, int ASize, int* B, int BSize){
         if (!a_ok && !b_ok) return -1;
         
         if (a_ok) {
-            if (A[i] != A[0]) a_up ++;      // flip up to make all are A[0] on top
-            if (B[i] != A[0]) a_down ++;    // flip down to make all are A[0] in bottom
+            if (A[i] != A[0]) a_up ++;          // flip up to make all are A[0] on top
+            else if (B[i] != A[0]) a_down ++;   // flip down to make all are A[0] in bottom
         }
         if (b_ok) {
             if (B[i] != B[0]) b_down ++;
-            if (A[i] != B[0]) b_up ++;
+            else if (A[i] != B[0]) b_up ++;
         }
     }
     
