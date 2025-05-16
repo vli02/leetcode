@@ -98,7 +98,7 @@ int main() {
   pthread_mutex_init(&mtx, NULL);
   pthread_cond_init(&cond, NULL);
 
-  thread_run = 2;
+  thread_run = 1;
 
   rc = pthread_create(&odd_thread, NULL, odd_printer, (void *)&range);
   if (rc != 0) {
