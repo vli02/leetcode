@@ -49,7 +49,7 @@ int even_print_one(const int start, const int end) {
   pthread_mutex_lock(&mtx);
 
   // wait for cond to be singaled by using mtx and cond
-  while (thread_run == 1) {
+  while (thread_run == 2) {
     pthread_cond_wait(&cond, &mtx);
   }
   if (seq > end) {
